@@ -1,0 +1,40 @@
+[project]
+name = "jupiter-ultra-mcp"
+version = "0.1.0"
+description = "Python UV Boilerplate contains all the boilerplate you need to create a Python repo"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.6.3",
+    "pre-commit>=3.3.3",
+    "pytest",
+    "pytest-asyncio<0.23",
+    "pytest-cov",
+]
+
+[tool.pyright]
+typeCheckingMode = "strict"
+venvPath = "."
+venv = ".venv"
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]
+
+[tool.isort]
+profile = "black"
+src_paths = "tests"
+line_length = 80
+include_trailing_comma = true
+multi_line_output = 3
+
+[tool.ruff]
+select = ["E", "F", "B"]
+exclude = ["__pycache__", "terraform", ".git", ".venv"]
+ignore = ["E501"]
