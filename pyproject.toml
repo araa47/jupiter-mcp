@@ -12,6 +12,20 @@ dependencies = [
     "aiohttp>=3.9.0",
 ]
 
+[project.scripts]
+jupiter-ultra-mcp = "src.server:main"
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]
+
+[tool.setuptools.package-dir]
+"" = "."
+
 [project.optional-dependencies]
 dev = [
     "ruff>=0.6.3",

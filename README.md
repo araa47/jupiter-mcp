@@ -10,6 +10,35 @@ A Python MCP (Model Context Protocol) server for the [Jupiter Ultra API](https:/
 - **Comprehensive Testing**: Safe testing with mock and real trade execution
 - **Type-Safe**: Full type annotations for Python
 
+## ⚡ Quick Start (MCP Configuration)
+
+Add this to your MCP client configuration:
+
+```json
+{
+  "mcpServers": {
+    "jupiter-ultra-mcp": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/araa47/jupiter-ultra-mcp",
+        "jupiter-ultra-mcp"
+      ],
+      "env": {
+        "SOLANA_RPC_URL": "https://api.mainnet-beta.solana.com",
+        "PRIVATE_KEY": "${PRIVATE_KEY}",
+        "SOLANA_NETWORK": "mainnet-beta",
+        "REQUEST_TIMEOUT": "30"
+      }
+    }
+  }
+}
+```
+
+### Environment Variables Required:
+- `PRIVATE_KEY`: Your base58 encoded Solana private key (from Phantom wallet export)
+- Optional: Override `SOLANA_RPC_URL` if you have a custom RPC endpoint
+
 ## 🛠️ Available Tools
 
 | Tool | Description | Parameters | Cost |
@@ -20,7 +49,9 @@ A Python MCP (Model Context Protocol) server for the [Jupiter Ultra API](https:/
 | `get_shield` | Get token security information | `mints` | **FREE** |
 | `search_token` | Search for tokens | `query` | **FREE** |
 
-## 🔧 Installation
+## 🔧 Alternative Installation (Development)
+
+For local development or testing:
 
 ### Prerequisites
 - Python 3.12+
@@ -28,25 +59,24 @@ A Python MCP (Model Context Protocol) server for the [Jupiter Ultra API](https:/
 
 ### Setup
 ```bash
-git clone <repository-url>
+git clone https://github.com/araa47/jupiter-ultra-mcp
 cd jupiter-ultra-mcp
 uv sync
-cp env.example .env
+cp .env.example .env
 # Edit .env with your configuration
 ```
 
-### Environment Variables
+### Environment Variables (.env file)
 ```bash
-SOLANA_RPC_URL=https://api.devnet.solana.com
+SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
 PRIVATE_KEY=your_base58_encoded_private_key_here
-SOLANA_NETWORK=devnet
+SOLANA_NETWORK=mainnet-beta
 REQUEST_TIMEOUT=30
 ```
 
-## 🎯 Usage
-
+### Local Development Usage
 ```bash
-# Start the server
+# Start the server locally
 uv run python run_server.py
 ```
 
