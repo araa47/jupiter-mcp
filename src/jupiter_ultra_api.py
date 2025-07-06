@@ -159,13 +159,26 @@ class JupiterUltraAPI:
             Dictionary containing the execution result with status and signature
         """
         try:
+            # Validate inputs
+            if not transaction or not transaction.strip():
+                raise ValueError("Transaction cannot be empty")
+            if not request_id or not request_id.strip():
+                raise ValueError("Request ID cannot be empty")
+
             print("🚨 WARNING: About to sign and execute a REAL trade!")
             print("🚨 This will spend actual SOL/tokens on the blockchain!")
 
             # Step 1: Sign the transaction
             print("🔐 Signing transaction with your private key...")
-            signed_transaction = self.sign_transaction(transaction)
-            print("✅ Transaction signed successfully")
+            try:
+                signed_transaction = self.sign_transaction(transaction)
+                print("✅ Transaction signed successfully")
+            except Exception as sign_error:
+                print(f"❌ Transaction signing failed: {str(sign_error)}")
+                return {
+                    "success": False,
+                    "error": f"Failed to sign transaction: {str(sign_error)}",
+                }
 
             # Step 2: Execute the signed transaction
             print("⚡ Executing transaction on Solana blockchain...")
@@ -285,14 +298,40 @@ class JupiterUltraAPI:
             Base64 encoded signed transaction
         """
         try:
+            # Validate input
+            if not transaction_base64:
+                raise ValueError("Transaction base64 string cannot be empty")
+
+            # Validate base64 format
+            if len(transaction_base64) % 4 != 0:
+                raise ValueError(
+                    "Invalid base64-encoded string: number of data characters must be a multiple of 4"
+                )
+
             # Get the keypair
             keypair = self.get_keypair()
 
-            # Decode the transaction
-            transaction_bytes = base64.b64decode(transaction_base64)
+            # Decode the transaction with better error handling
+            try:
+                transaction_bytes = base64.b64decode(transaction_base64, validate=True)
+            except Exception as decode_error:
+                raise ValueError(
+                    f"Invalid base64-encoded string: {str(decode_error)}"
+                ) from decode_error
+
+            # Validate transaction bytes
+            if len(transaction_bytes) == 0:
+                raise ValueError("Transaction bytes cannot be empty after decoding")
 
             # Create VersionedTransaction from bytes
-            unsigned_transaction = VersionedTransaction.from_bytes(transaction_bytes)
+            try:
+                unsigned_transaction = VersionedTransaction.from_bytes(
+                    transaction_bytes
+                )
+            except Exception as tx_error:
+                raise ValueError(
+                    f"Invalid transaction format: {str(tx_error)}"
+                ) from tx_error
 
             # Create a signed transaction with the keypair
             signed_transaction = VersionedTransaction(

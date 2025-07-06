@@ -103,7 +103,7 @@ class TestJupiterUltraAPI:
         result = await api.get_order(
             input_mint="So11111111111111111111111111111111111111112",  # SOL
             output_mint="EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",  # USDC
-            amount="1000000",  # 0.001 SOL
+            amount="100000",  # 0.0001 SOL (very small for safety)
         )
 
         assert result is not None
@@ -116,12 +116,16 @@ class TestJupiterUltraAPI:
         self, api: JupiterUltraAPI, mock_env_vars: Any
     ) -> None:
         """Test execute_order with mocked HTTP response."""
-        with patch.object(api, "make_http_request") as mock_request:
+        with (
+            patch.object(api, "make_http_request") as mock_request,
+            patch.object(api, "sign_transaction") as mock_sign,
+        ):
             mock_request.return_value = {
                 "status": "Success",
                 "signature": "mock-signature",
                 "slot": "12345",
             }
+            mock_sign.return_value = "mock-signed-transaction-base64"
 
             result = await api.execute_order(
                 transaction="mock-unsigned-transaction-base64",
@@ -216,7 +220,7 @@ class TestJupiterUltraAPIPaid:
         result = await api.get_order(
             input_mint="So11111111111111111111111111111111111111112",  # SOL
             output_mint="EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",  # USDC
-            amount="10000000",  # 0.01 SOL in lamports
+            amount="500000",  # 0.0005 SOL (reduced for mainnet safety)
         )
 
         assert result is not None
