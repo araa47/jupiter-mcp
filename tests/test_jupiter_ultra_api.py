@@ -124,7 +124,7 @@ class TestJupiterUltraAPI:
             }
 
             result = await api.execute_order(
-                signed_transaction="mock-signed-transaction-base64",
+                transaction="mock-unsigned-transaction-base64",
                 request_id="mock-request-id",
             )
 

@@ -2,19 +2,25 @@
 """
 Jupiter Ultra MCP Server
 
-A Python MCP server that provides tools to access the Jupiter Ultra API
-for Solana blockchain interactions.
+This module provides an MCP server for interacting with the Jupiter Ultra API.
 """
 
 from fastmcp import FastMCP
 
 from .jupiter_ultra_api import JupiterUltraAPI
 
-# Create the Jupiter Ultra API client
+# Create the FastMCP server instance
+mcp = FastMCP("Jupiter Ultra MCP Server")  # type: ignore
+
+# Initialize the Jupiter Ultra API client
 api = JupiterUltraAPI()
 
-# Create the main MCP server
-mcp = FastMCP(name="Jupiter Ultra MCP Server")  # type: ignore
+# Register all API methods as MCP tools using the clean pattern
+mcp.tool()(api.get_order)
+mcp.tool()(api.execute_order)
+mcp.tool()(api.get_balances)
+mcp.tool()(api.get_shield)
+mcp.tool()(api.search_token)
 
 
 @mcp.resource("wallet://info")
@@ -32,45 +38,38 @@ Wallet Configuration:
 """
 
 
-# Register all API methods as tools
-mcp.tool()(api.get_order)
-mcp.tool()(api.execute_order)
-mcp.tool()(api.get_balances)
-mcp.tool()(api.get_shield)
-mcp.tool()(api.search_token)
-
-
 def main():
     """Main entry point for the Jupiter Ultra MCP server."""
-    print("=" * 60)
     print("🚀 Jupiter Ultra MCP Server")
-    print("=" * 60)
-
-    # Get wallet info for startup display
-    wallet_info = api.get_wallet_info()
-    if "error" in wallet_info:
-        print(f"❌ Error: {wallet_info['error']}")
-        print("Please check your PRIVATE_KEY environment variable")
-        return
-
-    print(f"📡 Solana Network: {wallet_info['network']}")
-    print(f"🔗 RPC URL: {wallet_info['rpc_url']}")
-    print(f"💼 Wallet Address: {wallet_info['wallet_address']}")
+    print("=" * 50)
     print("")
-    print("🔧 Available Tools:")
-    print("  • get_order - Get swap quotes from Jupiter Ultra")
-    print("  • execute_order - Execute signed swap transactions")
-    print("  • get_balances - Get token balances for a wallet")
+    print("🔗 Connection Details:")
+    print(f"  Network: {api.network}")
+    print(f"  RPC URL: {api.rpc_url}")
+    print("")
+
+    # Get wallet info
+    wallet_info = api.get_wallet_info()
+    if wallet_info.get("wallet_address"):
+        print(f"💳 Wallet: {wallet_info['wallet_address']}")
+    else:
+        print("⚠️  No wallet configured")
+
+    print("")
+    print("🛠️  Available Tools:")
+    print("  • get_order - Get swap quotes and orders")
+    print("  • execute_order - Sign and execute transactions")
+    print("  • get_balances - Get wallet token balances")
     print("  • get_shield - Get token security information")
     print("  • search_token - Search for tokens")
     print("")
     print("📋 Available Resources:")
     print("  • wallet://info - Get wallet configuration details")
     print("")
-    print("🎯 Server starting...")
-    print("=" * 60)
+    print("🔥 Server is ready! Connect with your MCP client.")
+    print("")
 
-    # Start the MCP server
+    # Run the server
     mcp.run()
 
 

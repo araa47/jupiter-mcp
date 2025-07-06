@@ -14,6 +14,7 @@ import aiohttp
 from dotenv import load_dotenv
 from solana.rpc.async_api import AsyncClient
 from solders.keypair import Keypair
+from solders.transaction import VersionedTransaction
 
 # Load environment variables
 load_dotenv()
@@ -139,33 +140,46 @@ class JupiterUltraAPI:
         except Exception as e:
             return {"success": False, "error": str(e)}
 
-    async def execute_order(
-        self, signed_transaction: str, request_id: str
-    ) -> Dict[str, Any]:
+    async def execute_order(self, transaction: str, request_id: str) -> Dict[str, Any]:
         """
-        Execute a signed swap transaction via Jupiter Ultra API.
+        🚨 WARNING: THIS WILL EXECUTE A REAL TRADE AND SPEND ACTUAL SOL! 🚨
 
-        Note: This method expects an already signed transaction. It does not
-        sign transactions itself - that must be done separately.
+        Sign and execute a swap transaction via Jupiter Ultra API.
+
+        This method will:
+        1. Sign the provided unsigned transaction with your configured private key
+        2. Execute the signed transaction on the Solana blockchain
+        3. SPEND REAL SOL/TOKENS - THIS IS NOT REVERSIBLE!
 
         Args:
-            signed_transaction: The base64 encoded signed transaction
+            transaction: The base64 encoded UNSIGNED transaction from get_order
             request_id: The request ID from the order response
 
         Returns:
             Dictionary containing the execution result with status and signature
         """
         try:
-            # Prepare the request payload
+            print("🚨 WARNING: About to sign and execute a REAL trade!")
+            print("🚨 This will spend actual SOL/tokens on the blockchain!")
+
+            # Step 1: Sign the transaction
+            print("🔐 Signing transaction with your private key...")
+            signed_transaction = self.sign_transaction(transaction)
+            print("✅ Transaction signed successfully")
+
+            # Step 2: Execute the signed transaction
+            print("⚡ Executing transaction on Solana blockchain...")
             payload = {"signedTransaction": signed_transaction, "requestId": request_id}
 
             # Make the API request
             url = f"{self.base_url}/execute"
             response = await self.make_http_request("POST", url, json_data=payload)
 
+            print(f"🎉 Transaction executed! Response: {response}")
             return {"success": True, "data": response}
 
         except Exception as e:
+            print(f"❌ Transaction execution failed: {str(e)}")
             return {"success": False, "error": str(e)}
 
     async def get_balances(
@@ -259,3 +273,34 @@ class JupiterUltraAPI:
         """Reset cached clients (useful for testing)."""
         self._solana_client = None
         self._keypair = None
+
+    def sign_transaction(self, transaction_base64: str) -> str:
+        """
+        Sign a transaction using the configured private key.
+
+        Args:
+            transaction_base64: Base64 encoded transaction bytes
+
+        Returns:
+            Base64 encoded signed transaction
+        """
+        try:
+            # Get the keypair
+            keypair = self.get_keypair()
+
+            # Decode the transaction
+            transaction_bytes = base64.b64decode(transaction_base64)
+
+            # Create VersionedTransaction from bytes
+            unsigned_transaction = VersionedTransaction.from_bytes(transaction_bytes)
+
+            # Create a signed transaction with the keypair
+            signed_transaction = VersionedTransaction(
+                unsigned_transaction.message, [keypair]
+            )
+
+            # Return the signed transaction as base64
+            return base64.b64encode(bytes(signed_transaction)).decode("utf-8")
+
+        except Exception as e:
+            raise Exception(f"Failed to sign transaction: {str(e)}") from e
