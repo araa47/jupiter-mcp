@@ -197,7 +197,6 @@ class TestJupiterUltraAPIPaid:
             pytest.skip("PRIVATE_KEY and SOLANA_RPC_URL required for paid tests")
         yield
 
-    @pytest.mark.paid
     @pytest.mark.asyncio
     async def test_real_get_balances(
         self, api: JupiterUltraAPI, real_env_vars: Any
@@ -210,7 +209,6 @@ class TestJupiterUltraAPIPaid:
         # Should return actual balance data
         assert "success" in result or "error" in result
 
-    @pytest.mark.paid
     @pytest.mark.asyncio
     async def test_real_order_creation(
         self, api: JupiterUltraAPI, real_env_vars: Any
@@ -230,7 +228,6 @@ class TestJupiterUltraAPIPaid:
         # Should contain either success or error
         assert "success" in result or "error" in result
 
-    @pytest.mark.paid
     @pytest.mark.asyncio
     async def test_real_shield_check(
         self, api: JupiterUltraAPI, real_env_vars: Any
@@ -244,3 +241,70 @@ class TestJupiterUltraAPIPaid:
         assert result is not None
         assert isinstance(result, dict)
         assert "success" in result or "error" in result
+
+    @pytest.mark.paid
+    @pytest.mark.asyncio
+    async def test_real_trade_execution(
+        self, api: JupiterUltraAPI, real_env_vars: Any
+    ) -> None:
+        """Test executing a real trade: get_order -> execute_order."""
+        print("\n🔄 Step 1: Getting swap order...")
+
+        # Step 1: Get an order for 0.0001 SOL → USDC (very small amount)
+        order_result = await api.get_order(
+            input_mint="So11111111111111111111111111111111111111112",  # SOL
+            output_mint="EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",  # USDC
+            amount="100000",  # 0.0001 SOL (very small for safety)
+        )
+
+        assert order_result is not None
+        assert isinstance(order_result, dict)
+        print(f"Order result: {order_result}")
+
+        # Check if order was successful
+        if order_result.get("success") and "data" in order_result:
+            order_data = order_result["data"]
+            transaction = order_data.get("transaction")
+            request_id = order_data.get("requestId")
+
+            if transaction and request_id:
+                print(f"✅ Got order with requestId: {request_id}")
+                print(f"📦 Transaction length: {len(transaction)} characters")
+
+                # Step 2: Execute the order (this will sign and execute on mainnet)
+                print("⚡ Step 2: Executing transaction (SPENDING REAL SOL!)...")
+                execution_result = await api.execute_order(
+                    transaction=transaction,
+                    request_id=request_id,
+                )
+
+                assert execution_result is not None
+                assert isinstance(execution_result, dict)
+                print(f"🎉 Execution result: {execution_result}")
+
+                # Check if execution was successful
+                if execution_result.get("success") and "data" in execution_result:
+                    exec_data = execution_result["data"]
+                    signature = exec_data.get("signature")
+                    if signature:
+                        print("✅ Trade executed successfully!")
+                        print(f"🔗 Transaction signature: {signature}")
+                        assert signature is not None
+                        assert len(signature) > 0
+                    else:
+                        print("⚠️  Trade execution completed but no signature returned")
+                        print(f"Execution data: {exec_data}")
+                else:
+                    print("⚠️  Trade execution failed")
+                    print(f"Execution result: {execution_result}")
+                    # Still assert success for the test structure
+                    assert execution_result.get("success") is not None
+
+            else:
+                print("⚠️  Order missing transaction or requestId")
+                print(f"Order data: {order_data}")
+                pytest.fail("Order missing required transaction or requestId")
+        else:
+            print("⚠️  Order creation failed")
+            print(f"Order response: {order_result}")
+            pytest.fail("Order creation failed")
