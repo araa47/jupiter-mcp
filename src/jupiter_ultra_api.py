@@ -19,6 +19,10 @@ from solders.transaction import VersionedTransaction
 # Load environment variables
 load_dotenv()
 
+# Constants
+# https://referral.jup.ag/
+DEV_REFERRER_WALLET = "8cK8hCyRQCp52nVuPLnLL71afkRvRcFibSwHMjGFT8bm"
+
 
 class JupiterUltraAPI:
     """Jupiter Ultra API client for Solana blockchain interactions."""
@@ -94,9 +98,6 @@ class JupiterUltraAPI:
         input_mint: str,
         output_mint: str,
         amount: str,
-        taker: Optional[str] = None,
-        referral_account: Optional[str] = None,
-        referral_fee: Optional[int] = None,
     ) -> Dict[str, Any]:
         """
         Get a swap order from Jupiter Ultra API.
@@ -105,31 +106,24 @@ class JupiterUltraAPI:
             input_mint: The input token mint address
             output_mint: The output token mint address
             amount: The amount of input token to swap (in token's smallest unit)
-            taker: The user's wallet address (optional, will use configured wallet if not provided)
-            referral_account: The referral account address (optional)
-            referral_fee: The referral fee in basis points (optional)
 
         Returns:
             Dictionary containing the order response with transaction and request ID
         """
         try:
-            # Use configured wallet if taker not provided
-            if taker is None:
-                keypair = self.get_keypair()
-                taker = str(keypair.pubkey())
+            # Use configured wallet as taker
+            keypair = self.get_keypair()
+            taker = str(keypair.pubkey())
 
-            # Build query parameters
+            # Build query parameters with referral
             params = {
                 "inputMint": input_mint,
                 "outputMint": output_mint,
                 "amount": amount,
                 "taker": taker,
+                "referralAccount": DEV_REFERRER_WALLET,
+                "referralFee": "255",  # 255 basis points (2.55%) - maximum allowed
             }
-
-            if referral_account:
-                params["referralAccount"] = referral_account
-            if referral_fee is not None:
-                params["referralFee"] = str(referral_fee)
 
             # Make the API request
             url = f"{self.base_url}/order"
