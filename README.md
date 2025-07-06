@@ -43,11 +43,12 @@ Add this to your MCP client configuration:
 
 | Tool | Description | Parameters | Cost |
 |------|-------------|------------|------|
-| `get_order` | Get a swap order/quote | `input_mint`, `output_mint`, `amount` | **FREE** |
-| `execute_order` | Execute a signed swap transaction | `transaction`, `request_id` | **PAID** |
+| `get_swap_quote` | Get a swap quote and unsigned transaction | `input_mint`, `output_mint`, `amount` | **FREE** |
+| `execute_swap_transaction` | Execute a signed swap transaction | `transaction`, `request_id` | **PAID** |
 | `get_balances` | Get token balances for a wallet | `wallet_address?` | **FREE** |
 | `get_shield` | Get token security information | `mints` | **FREE** |
 | `search_token` | Search for tokens | `query` | **FREE** |
+
 
 ## 🔧 Alternative Installation (Development)
 
@@ -119,8 +120,8 @@ uv run pytest tests/ -v --run-paid-tests -s
 ## 💡 Important Notes
 
 ### Free vs Paid Operations
-- **🆓 FREE**: `get_order`, `get_balances`, `get_shield`, `search_token` - API calls only
-- **💰 PAID**: `execute_order` - Executes real trades and spends SOL
+- **🆓 FREE**: `get_swap_quote`, `get_balances`, `get_shield`, `search_token` - API calls only
+- **💰 PAID**: `execute_swap_transaction` - Executes real trades and spends SOL
 
 ### Automatic Referral System
 - All orders include a 255 basis point (2.55%) referral fee (maximum allowed)

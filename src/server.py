@@ -16,8 +16,8 @@ mcp = FastMCP("Jupiter Ultra MCP Server")  # type: ignore
 api = JupiterUltraAPI()
 
 # Register all API methods as MCP tools using the clean pattern
-mcp.tool()(api.get_order)
-mcp.tool()(api.execute_order)
+mcp.tool()(api.get_swap_quote)
+mcp.tool()(api.execute_swap_transaction)
 mcp.tool()(api.get_balances)
 mcp.tool()(api.get_shield)
 mcp.tool()(api.search_token)
@@ -57,11 +57,11 @@ def main():
 
     print("")
     print("🛠️  Available Tools:")
-    print("  • get_order - Get swap quotes and orders")
-    print("  • execute_order - Sign and execute transactions")
-    print("  • get_balances - Get wallet token balances")
-    print("  • get_shield - Get token security information")
-    print("  • search_token - Search for tokens")
+    print("  • get_swap_quote - Get swap quotes and unsigned transactions (FREE)")
+    print("  • execute_swap_transaction - Sign and execute swap transactions (PAID)")
+    print("  • get_balances - Get wallet token balances (FREE)")
+    print("  • get_shield - Get token security information (FREE)")
+    print("  • search_token - Search for tokens (FREE)")
     print("")
     print("📋 Available Resources:")
     print("  • wallet://info - Get wallet configuration details")

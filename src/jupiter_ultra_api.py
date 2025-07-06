@@ -93,24 +93,59 @@ class JupiterUltraAPI:
             except Exception as e:
                 raise Exception(f"Request failed: {str(e)}") from e
 
-    async def get_order(
+    async def get_swap_quote(
         self,
         input_mint: str,
         output_mint: str,
         amount: str,
     ) -> Dict[str, Any]:
         """
-        Get a swap order from Jupiter Ultra API.
+        Get a swap quote and unsigned transaction from Jupiter Ultra API.
+
+        This function is FREE to call and does not execute any transactions.
+        Use this to get price quotes and prepare transactions for execution.
 
         Args:
-            input_mint: The input token mint address
-            output_mint: The output token mint address
-            amount: The amount of input token to swap (in token's smallest unit)
+            input_mint: The input token mint address (e.g., SOL: "So11111111111111111111111111111111111111112")
+            output_mint: The output token mint address (e.g., USDC: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v")
+            amount: The amount of input token to swap in smallest unit (e.g., "1000000" = 0.001 SOL)
 
         Returns:
-            Dictionary containing the order response with transaction and request ID
+            Dictionary containing:
+            - success: Boolean indicating if the request was successful
+            - data: Contains 'transaction' (unsigned) and 'requestId' for execution
+            - error: Error message if request failed
+
+        Example:
+            >>> result = await api.get_swap_quote(
+            ...     input_mint="So11111111111111111111111111111111111111112",  # SOL
+            ...     output_mint="EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",  # USDC
+            ...     amount="1000000"  # 0.001 SOL
+            ... )
+            >>> if result["success"]:
+            ...     transaction = result["data"]["transaction"]
+            ...     request_id = result["data"]["requestId"]
         """
         try:
+            # Validate inputs
+            if not input_mint or not input_mint.strip():
+                return {"success": False, "error": "input_mint cannot be empty"}
+            if not output_mint or not output_mint.strip():
+                return {"success": False, "error": "output_mint cannot be empty"}
+            if not amount or not amount.strip():
+                return {"success": False, "error": "amount cannot be empty"}
+
+            # Validate amount is numeric
+            try:
+                amount_num = int(amount)
+                if amount_num <= 0:
+                    return {
+                        "success": False,
+                        "error": "amount must be a positive number",
+                    }
+            except ValueError:
+                return {"success": False, "error": "amount must be a valid number"}
+
             # Use configured wallet as taker
             keypair = self.get_keypair()
             taker = str(keypair.pubkey())
@@ -132,13 +167,18 @@ class JupiterUltraAPI:
             return {"success": True, "data": response}
 
         except Exception as e:
-            return {"success": False, "error": str(e)}
+            return {"success": False, "error": f"Failed to get swap quote: {str(e)}"}
 
-    async def execute_order(self, transaction: str, request_id: str) -> Dict[str, Any]:
+    async def execute_swap_transaction(
+        self, transaction: str, request_id: str
+    ) -> Dict[str, Any]:
         """
         🚨 WARNING: THIS WILL EXECUTE A REAL TRADE AND SPEND ACTUAL SOL! 🚨
 
         Sign and execute a swap transaction via Jupiter Ultra API.
+
+        This is a PAID operation that executes real trades on the Solana blockchain.
+        Only call this function when you want to actually execute a trade.
 
         This method will:
         1. Sign the provided unsigned transaction with your configured private key
@@ -146,11 +186,26 @@ class JupiterUltraAPI:
         3. SPEND REAL SOL/TOKENS - THIS IS NOT REVERSIBLE!
 
         Args:
-            transaction: The base64 encoded UNSIGNED transaction from get_order
-            request_id: The request ID from the order response
+            transaction: The base64 encoded UNSIGNED transaction from get_swap_quote
+            request_id: The request ID from the swap quote response
 
         Returns:
-            Dictionary containing the execution result with status and signature
+            Dictionary containing:
+            - success: Boolean indicating if the execution was successful
+            - data: Contains 'signature' and transaction details if successful
+            - error: Error message if execution failed
+
+        Example:
+            >>> # First get a quote
+            >>> quote = await api.get_swap_quote(input_mint, output_mint, amount)
+            >>> if quote["success"]:
+            ...     # Then execute the trade
+            ...     result = await api.execute_swap_transaction(
+            ...         transaction=quote["data"]["transaction"],
+            ...         request_id=quote["data"]["requestId"]
+            ...     )
+            ...     if result["success"]:
+            ...         print(f"Trade executed! Signature: {result['data']['signature']}")
         """
         try:
             # Validate inputs
@@ -195,17 +250,39 @@ class JupiterUltraAPI:
         """
         Get token balances for a wallet address via Jupiter Ultra API.
 
+        This function is FREE to call and does not execute any transactions.
+        Use this to check wallet holdings before making trades.
+
         Args:
             wallet_address: The wallet address to get balances for (optional, will use configured wallet if not provided)
 
         Returns:
-            Dictionary containing the wallet's token balances
+            Dictionary containing:
+            - success: Boolean indicating if the request was successful
+            - wallet_address: The wallet address that was queried
+            - data: Array of token balances with mint addresses, amounts, and decimals
+            - error: Error message if request failed
+
+        Example:
+            >>> # Get balances for configured wallet
+            >>> result = await api.get_balances()
+            >>> if result["success"]:
+            ...     balances = result["data"]
+            ...     for balance in balances:
+            ...         print(f"Token: {balance['mint']}, Amount: {balance['amount']}")
+            >>>
+            >>> # Get balances for specific wallet
+            >>> result = await api.get_balances(wallet_address="11111111111111111111111111111112")
         """
         try:
             # Use configured wallet if address not provided
             if wallet_address is None:
                 keypair = self.get_keypair()
                 wallet_address = str(keypair.pubkey())
+
+            # Validate wallet address
+            if not wallet_address or not wallet_address.strip():
+                return {"success": False, "error": "wallet_address cannot be empty"}
 
             # Make the API request
             url = f"{self.base_url}/balances/{wallet_address}"
@@ -214,21 +291,39 @@ class JupiterUltraAPI:
             return {"success": True, "wallet_address": wallet_address, "data": response}
 
         except Exception as e:
-            return {"success": False, "error": str(e)}
+            return {"success": False, "error": f"Failed to get balances: {str(e)}"}
 
     async def get_shield(self, mints: str) -> Dict[str, Any]:
         """
         Get token security information via Jupiter Ultra Shield API.
 
-        This method only retrieves security information and does not execute any transactions.
+        This function is FREE to call and does not execute any transactions.
+        Use this to check token security before making trades. Essential for avoiding scam tokens.
 
         Args:
-            mints: Comma-separated list of token mint addresses to check
+            mints: Comma-separated list of token mint addresses to check (e.g., "So11111111111111111111111111111111111111112,EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v")
 
         Returns:
-            Dictionary containing token warnings and security information
+            Dictionary containing:
+            - success: Boolean indicating if the request was successful
+            - data: Security information including warnings for each token
+            - error: Error message if request failed
+
+        Example:
+            >>> # Check security for SOL and USDC
+            >>> result = await api.get_shield(
+            ...     mints="So11111111111111111111111111111111111111112,EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+            ... )
+            >>> if result["success"]:
+            ...     for token_info in result["data"]:
+            ...         if token_info.get("warnings"):
+            ...             print(f"⚠️ Security warnings for {token_info['mint']}: {token_info['warnings']}")
         """
         try:
+            # Validate inputs
+            if not mints or not mints.strip():
+                return {"success": False, "error": "mints parameter cannot be empty"}
+
             # Prepare query parameters
             params = {"mints": mints}
 
@@ -239,19 +334,45 @@ class JupiterUltraAPI:
             return {"success": True, "data": response}
 
         except Exception as e:
-            return {"success": False, "error": str(e)}
+            return {
+                "success": False,
+                "error": f"Failed to get shield information: {str(e)}",
+            }
 
     async def search_token(self, query: str) -> Dict[str, Any]:
         """
         Search for tokens via Jupiter Ultra API.
 
+        This function is FREE to call and does not execute any transactions.
+        Use this to find token mint addresses when you only know the symbol or name.
+
         Args:
-            query: Search query (token symbol, name, or mint address)
+            query: Search query (token symbol like "SOL", name like "Solana", or partial mint address)
 
         Returns:
-            Dictionary containing search results with token information
+            Dictionary containing:
+            - success: Boolean indicating if the request was successful
+            - query: The original search query
+            - data: Array of matching tokens with mint addresses, symbols, names, and decimals
+            - error: Error message if request failed
+
+        Example:
+            >>> # Search for SOL token
+            >>> result = await api.search_token(query="SOL")
+            >>> if result["success"]:
+            ...     for token in result["data"]:
+            ...         print(f"Symbol: {token['symbol']}, Mint: {token['mint']}")
+            >>>
+            >>> # Search for USDC token
+            >>> result = await api.search_token(query="USDC")
+            >>> if result["success"]:
+            ...     usdc_mint = result["data"][0]["mint"]  # Get first result
         """
         try:
+            # Validate inputs
+            if not query or not query.strip():
+                return {"success": False, "error": "search query cannot be empty"}
+
             # Prepare query parameters
             params = {"query": query}
 
@@ -262,7 +383,7 @@ class JupiterUltraAPI:
             return {"success": True, "query": query, "data": response}
 
         except Exception as e:
-            return {"success": False, "error": str(e)}
+            return {"success": False, "error": f"Failed to search tokens: {str(e)}"}
 
     def get_wallet_info(self) -> Dict[str, str]:
         """Get information about the configured wallet."""
