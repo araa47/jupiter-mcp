@@ -12,7 +12,10 @@ A Python MCP (Model Context Protocol) server for the [Jupiter Ultra API](https:/
 
 ## ⚡ Quick Start (MCP Configuration)
 
-Add this to your MCP client configuration:
+You need [uv](https://docs.astral.sh/uv/getting-started/installation/) installed on your system. 
+
+Once uv is installed, restart your shell and add this to your MCP client configuration:
+
 
 ```json
 {
