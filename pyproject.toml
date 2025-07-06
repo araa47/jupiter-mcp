@@ -1,11 +1,15 @@
 [project]
 name = "jupiter-ultra-mcp"
 version = "0.1.0"
-description = "Python UV Boilerplate contains all the boilerplate you need to create a Python repo"
+description = "Jupiter Ultra MCP Server - Python MCP server with tools to access Jupiter Ultra API"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.12"
 dependencies = [
-
+    "fastmcp>=0.4.0",
+    "solana>=0.34.0",
+    "solders>=0.21.0",
+    "python-dotenv>=1.0.0",
+    "aiohttp>=3.9.0",
 ]
 
 [project.optional-dependencies]
