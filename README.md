@@ -22,9 +22,8 @@ Once uv is installed, restart your shell before proceeding.
 
 ### Option 1: Using .env File (Recommended - More Secure)
 
-<a href="cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-ultra-mcp-env&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyJlbnZtY3AiLCItLWVudi1maWxlIiwifi8uZW52IiwidXZ4IiwiLS1mcm9tIiwiZ2l0K2h0dHBzOi8vZ2l0aHViLmNvbS9hcmFhNDcvanVwaXRlci11bHRyYS1tY3AiLCJqdXBpdGVyLXVsdHJhLW1jcCJdfQ==">
-  <img src="https://img.shields.io/badge/Install%20with%20.env%20File-00AAFF?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJDNi40NzcgMiAyIDYuNDc3IDIgMTJDMiAxNy41MjMgNi40NzcgMjIgMTIgMjJDMTcuNTIzIDIyIDIyIDE3LjUyMyAyMiAxMkMyMiA2LjQ3NyAxNy41MjMgMiAxMiAyWiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTEwLjUgN0wxNC41IDE3SDE0TDEwIDE3VjEyTDkuNSA3SDEwLjVaIiBmaWxsPSIjMDBBQUZGIi8+Cjwvc3ZnPg==" alt="Install Jupiter Ultra MCP with .env file">
-</a>
+[1Click Cursor](cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-ultra-mcp-env&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyJlbnZtY3AiLCItLWVudi1maWxlIiwifi8uZW52IiwidXZ4IiwiLS1mcm9tIiwiZ2l0K2h0dHBzOi8vZ2l0aHViLmNvbS9hcmFhNDcvanVwaXRlci11bHRyYS1tY3AiLCJqdXBpdGVyLXVsdHJhLW1jcCJdfQ==)
+
 
 **Click the button above to install.** After installation, you'll need to update the env file path:
 
@@ -53,9 +52,7 @@ cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-ultra-mcp-env&config
 
 If you prefer to configure directly through Cursor prompts:
 
-<a href="cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-ultra-mcp&config=eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyItLWZyb20iLCJnaXQraHR0cHM6Ly9naXRodWIuY29tL2FyYWE0Ny9qdXBpdGVyLXVsdHJhLW1jcCIsImp1cGl0ZXItdWx0cmEtbWNwIl0sImVudiI6eyJQUklWQVRFX0tFWSI6IlJFUExBQ0VfVEhJUyIsIlNPTEFOQV9SUENfVVJMIjoiaHR0cHM6Ly9hcGkubWFpbm5ldC1iZXRhLnNvbGFuYS5jb20iLCJTT0xBTkFfTkVUV09SSyI6Im1haW5uZXQtYmV0YSIsIlJFUVVFU1RfVElNRU9VVCI6IjMwIn19">
-  <img src="https://img.shields.io/badge/Install%20in%20Cursor-00AAFF?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJDNi40NzcgMiAyIDYuNDc3IDIgMTJDMiAxNy41MjMgNi40NzcgMjIgMTIgMjJDMTcuNTIzIDIyIDIyIDE3LjUyMyAyMiAxMkMyMiA2LjQ3NyAxNy41MjMgMiAxMiAyWiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTEwLjUgN0wxNC41IDE3SDE0TDEwIDE3VjEyTDkuNSA3SDEwLjVaIiBmaWxsPSIjMDBBQUZGIi8+Cjwvc3ZnPg==" alt="Install Jupiter Ultra MCP in Cursor">
-</a>
+[1Click Cursor](cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-ultra-mcp&config=eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyItLWZyb20iLCJnaXQraHR0cHM6Ly9naXRodWIuY29tL2FyYWE0Ny9qdXBpdGVyLXVsdHJhLW1jcCIsImp1cGl0ZXItdWx0cmEtbWNwIl0sImVudiI6eyJQUklWQVRFX0tFWSI6IlJFUExBQ0VfVEhJUyIsIlNPTEFOQV9SUENfVVJMIjoiaHR0cHM6Ly9hcGkubWFpbm5ldC1iZXRhLnNvbGFuYS5jb20iLCJTT0xBTkFfTkVUV09SSyI6Im1haW5uZXQtYmV0YSIsIlJFUVVFU1RfVElNRU9VVCI6IjMwIn19)
 
 **Click the button above to install.** You'll be prompted to replace `REPLACE_THIS` with your actual private key.
 
