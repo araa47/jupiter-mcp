@@ -27,12 +27,12 @@ Once uv is installed, restart your shell before proceeding.
 
 ### Option 1: Using .env File (Recommended - More Secure)
 
-**🚀 [Install with .env File →](cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-mcp-env&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyJlbnZtY3AiLCItLWVudi1maWxlIiwifi8uZW52IiwidXZ4IiwiLS1mcm9tIiwiZ2l0K2h0dHBzOi8vZ2l0aHViLmNvbS9hcmFhNDcvanVwaXRlci11bHRyYS1tY3AiLCJqdXBpdGVyLW1jcCJdfQ==)**
+**🚀 [Install with .env File →](cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-mcp-env&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyJlbnZtY3AiLCItLWVudi1maWxlIiwifi8uZW52IiwidXZ4IiwiLS1mcm9tIiwiZ2l0K2h0dHBzOi8vZ2l0aHViLmNvbS9hcmFhNDcvanVwaXRlci1tY3AiLCJqdXBpdGVyLW1jcCJdfQ==)**
 
 **Note:** This link only works in the Cursor app. If viewing on web, copy the link below:
 
 ```
-cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-mcp-env&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyJlbnZtY3AiLCItLWVudi1maWxlIiwifi8uZW52IiwidXZ4IiwiLS1mcm9tIiwiZ2l0K2h0dHBzOi8vZ2l0aHViLmNvbS9hcmFhNDcvanVwaXRlci11bHRyYS1tY3AiLCJqdXBpdGVyLW1jcCJdfQ==
+cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-mcp-env&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyJlbnZtY3AiLCItLWVudi1maWxlIiwifi8uZW52IiwidXZ4IiwiLS1mcm9tIiwiZ2l0K2h0dHBzOi8vZ2l0aHViLmNvbS9hcmFhNDcvanVwaXRlci1tY3AiLCJqdXBpdGVyLW1jcCJdfQ==
 ```
 
 After installation, you'll need to update the env file path:
@@ -57,12 +57,12 @@ REQUEST_TIMEOUT=30
 
 If you prefer to configure directly through Cursor prompts:
 
-**🚀 [Install with Direct Input →](cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-mcp&config=eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyItLWZyb20iLCJnaXQraHR0cHM6Ly9naXRodWIuY29tL2FyYWE0Ny9qdXBpdGVyLXVsdHJhLW1jcCIsImp1cGl0ZXItbWNwIl0sImVudiI6eyJQUklWQVRFX0tFWSI6IlJFUExBQ0VfVEhJUyIsIlNPTEFOQV9SUENfVVJMIjoiaHR0cHM6Ly9hcGkubWFpbm5ldC1iZXRhLnNvbGFuYS5jb20iLCJTT0xBTkFfTkVUV09SSyI6Im1haW5uZXQtYmV0YSIsIlJFUVVFU1RfVElNRU9VVCI6IjMwIn19)**
+**🚀 [Install with Direct Input →](cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-mcp&config=eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyItLWZyb20iLCJnaXQraHR0cHM6Ly9naXRodWIuY29tL2FyYWE0Ny9qdXBpdGVyLW1jcCIsImp1cGl0ZXItbWNwIl0sImVudiI6eyJQUklWQVRFX0tFWSI6IlJFUExBQ0VfVEhJUyIsIlNPTEFOQV9SUENfVVJMIjoiaHR0cHM6Ly9hcGkubWFpbm5ldC1iZXRhLnNvbGFuYS5jb20iLCJTT0xBTkFfTkVUV09SSyI6Im1haW5uZXQtYmV0YSIsIlJFUVVFU1RfVElNRU9VVCI6IjMwIn19)**
 
 **Note:** This link only works in the Cursor app. If viewing on web, copy the link below:
 
 ```
-cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-mcp&config=eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyItLWZyb20iLCJnaXQraHR0cHM6Ly9naXRodWIuY29tL2FyYWE0Ny9qdXBpdGVyLXVsdHJhLW1jcCIsImp1cGl0ZXItbWNwIl0sImVudiI6eyJQUklWQVRFX0tFWSI6IlJFUExBQ0VfVEhJUyIsIlNPTEFOQV9SUENfVVJMIjoiaHR0cHM6Ly9hcGkubWFpbm5ldC1iZXRhLnNvbGFuYS5jb20iLCJTT0xBTkFfTkVUV09SSyI6Im1haW5uZXQtYmV0YSIsIlJFUVVFU1RfVElNRU9VVCI6IjMwIn19
+cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-mcp&config=eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyItLWZyb20iLCJnaXQraHR0cHM6Ly9naXRodWIuY29tL2FyYWE0Ny9qdXBpdGVyLW1jcCIsImp1cGl0ZXItbWNwIl0sImVudiI6eyJQUklWQVRFX0tFWSI6IlJFUExBQ0VfVEhJUyIsIlNPTEFOQV9SUENfVVJMIjoiaHR0cHM6Ly9hcGkubWFpbm5ldC1iZXRhLnNvbGFuYS5jb20iLCJTT0xBTkFfTkVUV09SSyI6Im1haW5uZXQtYmV0YSIsIlJFUVVFU1RfVElNRU9VVCI6IjMwIn19
 ```
 
 You'll be prompted to replace `REPLACE_THIS` with your actual private key.
@@ -84,7 +84,7 @@ Add this to your MCP client configuration:
       "command": "uvx",
       "args": [
         "--from",
-        "git+https://github.com/araa47/jupiter-ultra-mcp",
+        "git+https://github.com/araa47/jupiter-mcp",
         "jupiter-mcp"
       ],
       "env": {
@@ -113,7 +113,7 @@ If you prefer to load environment variables from a `.env` file to avoid storing 
         "${ENV_FILE_PATH}",
         "uvx",
         "--from",
-        "git+https://github.com/araa47/jupiter-ultra-mcp",
+        "git+https://github.com/araa47/jupiter-mcp",
         "jupiter-mcp"
       ],
       "env": {
@@ -168,8 +168,8 @@ For local development or testing:
 
 ### Setup
 ```bash
-git clone https://github.com/araa47/jupiter-ultra-mcp
-cd jupiter-ultra-mcp
+git clone https://github.com/araa47/jupiter-mcp
+cd jupiter-mcp
 direnv allow
 cp .env.example .env
 # Edit .env with your configuration

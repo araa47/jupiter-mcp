@@ -18,8 +18,8 @@
               ".env",
               "uvx",
               "--from",
-              "git+https://github.com/araa47/jupiter-ultra-mcp",
-              "jupiter-ultra-mcp",
+              "git+https://github.com/araa47/jupiter-mcp",
+              "jupiter-mcp",
               "$SOLANA_RPC_URL",
               "$PRIVATE_KEY"
             ]
