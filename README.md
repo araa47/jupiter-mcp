@@ -1,10 +1,15 @@
-# Jupiter Ultra MCP Server
+# Jupiter MCP Server
 
-A Python MCP (Model Context Protocol) server for the [Jupiter Ultra API](https://dev.jup.ag/docs/ultra-api/) - Solana's premier DEX aggregator.
+A Python MCP (Model Context Protocol) server for the [Jupiter API](https://dev.jup.ag/docs/) Solana's premier DEX aggregator
+
+Currently supports
+- [Ultra API](https://dev.jup.ag/docs/ultra-api)
+- [Trigger API](https://dev.jup.ag/docs/trigger-api/)
 
 ## 🚀 Features
 
-- **Jupiter Ultra API Integration**: Access all Jupiter Ultra endpoints
+- **Jupiter Ultra API Integration**: Execute immediate swaps on Solana
+- **Jupiter Trigger API Integration**: Create and manage limit orders
 - **Secure Wallet Management**: Uses your Solana private key for transactions
 - **Built-in Referral System**: Automatically includes referral fees for development support
 - **Comprehensive Testing**: Safe testing with mock and real trade execution
@@ -22,12 +27,12 @@ Once uv is installed, restart your shell before proceeding.
 
 ### Option 1: Using .env File (Recommended - More Secure)
 
-**🚀 [Install with .env File →](cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-ultra-mcp-env&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyJlbnZtY3AiLCItLWVudi1maWxlIiwifi8uZW52IiwidXZ4IiwiLS1mcm9tIiwiZ2l0K2h0dHBzOi8vZ2l0aHViLmNvbS9hcmFhNDcvanVwaXRlci11bHRyYS1tY3AiLCJqdXBpdGVyLXVsdHJhLW1jcCJdfQ==)**
+**🚀 [Install with .env File →](cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-mcp-env&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyJlbnZtY3AiLCItLWVudi1maWxlIiwifi8uZW52IiwidXZ4IiwiLS1mcm9tIiwiZ2l0K2h0dHBzOi8vZ2l0aHViLmNvbS9hcmFhNDcvanVwaXRlci11bHRyYS1tY3AiLCJqdXBpdGVyLW1jcCJdfQ==)**
 
 **Note:** This link only works in the Cursor app. If viewing on web, copy the link below:
 
 ```
-cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-ultra-mcp-env&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyJlbnZtY3AiLCItLWVudi1maWxlIiwifi8uZW52IiwidXZ4IiwiLS1mcm9tIiwiZ2l0K2h0dHBzOi8vZ2l0aHViLmNvbS9hcmFhNDcvanVwaXRlci11bHRyYS1tY3AiLCJqdXBpdGVyLXVsdHJhLW1jcCJdfQ==
+cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-mcp-env&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyJlbnZtY3AiLCItLWVudi1maWxlIiwifi8uZW52IiwidXZ4IiwiLS1mcm9tIiwiZ2l0K2h0dHBzOi8vZ2l0aHViLmNvbS9hcmFhNDcvanVwaXRlci11bHRyYS1tY3AiLCJqdXBpdGVyLW1jcCJdfQ==
 ```
 
 After installation, you'll need to update the env file path:
@@ -43,7 +48,7 @@ REQUEST_TIMEOUT=30
 2. **Update the path in Cursor**:
    - Go to **Tools & Integrations** section in Cursor
    - Click on **MCP Tools**
-   - Find **jupiter-ultra-mcp-env**
+   - Find **jupiter-mcp-env**
    - Hover near the on/off switch and click the **pencil icon** ✏️
    - Replace `~/.env` with your actual env file path (e.g., `/Users/yourname/.env`)
    - Click **Save**
@@ -52,12 +57,12 @@ REQUEST_TIMEOUT=30
 
 If you prefer to configure directly through Cursor prompts:
 
-**🚀 [Install with Direct Input →](cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-ultra-mcp&config=eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyItLWZyb20iLCJnaXQraHR0cHM6Ly9naXRodWIuY29tL2FyYWE0Ny9qdXBpdGVyLXVsdHJhLW1jcCIsImp1cGl0ZXItdWx0cmEtbWNwIl0sImVudiI6eyJQUklWQVRFX0tFWSI6IlJFUExBQ0VfVEhJUyIsIlNPTEFOQV9SUENfVVJMIjoiaHR0cHM6Ly9hcGkubWFpbm5ldC1iZXRhLnNvbGFuYS5jb20iLCJTT0xBTkFfTkVUV09SSyI6Im1haW5uZXQtYmV0YSIsIlJFUVVFU1RfVElNRU9VVCI6IjMwIn19)**
+**🚀 [Install with Direct Input →](cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-mcp&config=eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyItLWZyb20iLCJnaXQraHR0cHM6Ly9naXRodWIuY29tL2FyYWE0Ny9qdXBpdGVyLXVsdHJhLW1jcCIsImp1cGl0ZXItbWNwIl0sImVudiI6eyJQUklWQVRFX0tFWSI6IlJFUExBQ0VfVEhJUyIsIlNPTEFOQV9SUENfVVJMIjoiaHR0cHM6Ly9hcGkubWFpbm5ldC1iZXRhLnNvbGFuYS5jb20iLCJTT0xBTkFfTkVUV09SSyI6Im1haW5uZXQtYmV0YSIsIlJFUVVFU1RfVElNRU9VVCI6IjMwIn19)**
 
 **Note:** This link only works in the Cursor app. If viewing on web, copy the link below:
 
 ```
-cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-ultra-mcp&config=eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyItLWZyb20iLCJnaXQraHR0cHM6Ly9naXRodWIuY29tL2FyYWE0Ny9qdXBpdGVyLXVsdHJhLW1jcCIsImp1cGl0ZXItdWx0cmEtbWNwIl0sImVudiI6eyJQUklWQVRFX0tFWSI6IlJFUExBQ0VfVEhJUyIsIlNPTEFOQV9SUENfVVJMIjoiaHR0cHM6Ly9hcGkubWFpbm5ldC1iZXRhLnNvbGFuYS5jb20iLCJTT0xBTkFfTkVUV09SSyI6Im1haW5uZXQtYmV0YSIsIlJFUVVFU1RfVElNRU9VVCI6IjMwIn19
+cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-mcp&config=eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyItLWZyb20iLCJnaXQraHR0cHM6Ly9naXRodWIuY29tL2FyYWE0Ny9qdXBpdGVyLXVsdHJhLW1jcCIsImp1cGl0ZXItbWNwIl0sImVudiI6eyJQUklWQVRFX0tFWSI6IlJFUExBQ0VfVEhJUyIsIlNPTEFOQV9SUENfVVJMIjoiaHR0cHM6Ly9hcGkubWFpbm5ldC1iZXRhLnNvbGFuYS5jb20iLCJTT0xBTkFfTkVUV09SSyI6Im1haW5uZXQtYmV0YSIsIlJFUVVFU1RfVElNRU9VVCI6IjMwIn19
 ```
 
 You'll be prompted to replace `REPLACE_THIS` with your actual private key.
@@ -72,16 +77,15 @@ You'll be prompted to replace `REPLACE_THIS` with your actual private key.
 
 Add this to your MCP client configuration:
 
-Cursor
 ```json
 {
   "mcpServers": {
-    "jupiter-ultra-mcp": {
+    "jupiter-mcp": {
       "command": "uvx",
       "args": [
         "--from",
         "git+https://github.com/araa47/jupiter-ultra-mcp",
-        "jupiter-ultra-mcp"
+        "jupiter-mcp"
       ],
       "env": {
         "SOLANA_RPC_URL": "https://api.mainnet-beta.solana.com",
@@ -101,7 +105,7 @@ If you prefer to load environment variables from a `.env` file to avoid storing 
 ```json
 {
   "mcpServers": {
-    "jupiter-ultra-mcp": {
+    "jupiter-mcp": {
       "command": "npx",
       "args": [
         "envmcp",
@@ -110,7 +114,7 @@ If you prefer to load environment variables from a `.env` file to avoid storing 
         "uvx",
         "--from",
         "git+https://github.com/araa47/jupiter-ultra-mcp",
-        "jupiter-ultra-mcp"
+        "jupiter-mcp"
       ],
       "env": {
         "ENV_FILE_PATH": ".env"
@@ -126,7 +130,9 @@ This approach uses `envmcp` to securely load your PRIVATE_KEY from a `.env` file
 - `PRIVATE_KEY`: Your base58 encoded Solana private key (from Phantom wallet export)
 - Optional: Override `SOLANA_RPC_URL` if you have a custom RPC endpoint
 
-## 🛠️ Available Tools
+## 🎉 Available Tools
+
+### 💱 Ultra API (Immediate Swaps)
 
 | Tool | Description | Parameters | Cost |
 |------|-------------|------------|------|
@@ -136,6 +142,20 @@ This approach uses `envmcp` to securely load your PRIVATE_KEY from a `.env` file
 | `get_shield` | Get token security information | `mints` | **FREE** |
 | `search_token` | Search for tokens | `query` | **FREE** |
 
+### 📊 Trigger API (Limit Orders)
+
+| Tool | Description | Parameters | Cost |
+|------|-------------|------------|------|
+| `create_limit_order` | Create a limit order transaction | `input_mint`, `output_mint`, `making_amount`, `taking_amount`, `slippage_bps?`, `expired_at?` | **FREE** |
+| `execute_limit_order` | Execute a limit order transaction | `transaction`, `request_id` | **PAID** |
+| `cancel_limit_order` | Cancel a single limit order | `order` | **FREE** |
+| `cancel_limit_orders` | Cancel multiple limit orders | `orders?` | **FREE** |
+| `get_limit_orders` | Get active/historical limit orders | `order_status`, `wallet_address?`, `input_mint?`, `output_mint?`, `page?` | **FREE** |
+
+### Key Differences: Swaps vs Limit Orders
+
+- **Swaps** (Ultra API): Execute immediately at current market price
+- **Limit Orders** (Trigger API): Execute automatically when your target price is reached
 
 ## 🔧 Alternative Installation (Development)
 
@@ -144,12 +164,13 @@ For local development or testing:
 ### Prerequisites
 - Python 3.12+
 - [uv](https://github.com/astral-sh/uv) for dependency management
+- [direnv](https://direnv.net/)
 
 ### Setup
 ```bash
 git clone https://github.com/araa47/jupiter-ultra-mcp
 cd jupiter-ultra-mcp
-uv sync
+direnv allow
 cp .env.example .env
 # Edit .env with your configuration
 ```
@@ -182,7 +203,11 @@ The project includes comprehensive testing with safety features:
 
 **💰 Paid Tests** (Requires `--run-paid-tests` flag):
 - Real trade execution on mainnet
-- Uses tiny amounts (0.0001 SOL ≈ $0.015)
+- Swap tests: Uses tiny amounts (0.0001 SOL ≈ $0.015)
+- Limit order tests: Creates orders 20% above market price
+  - Uses 0.04 SOL (≈ $6) to meet minimum requirements
+  - Orders won't execute at the high price
+  - Automatically cancelled after verification
 - Full transaction signing and broadcasting
 
 ### Running Tests
@@ -200,15 +225,16 @@ uv run pytest tests/ -v --run-paid-tests -s
 
 ### Test Safety Features
 - **Paid tests clearly marked** with `@pytest.mark.paid`
-- **Minimal trade amounts** (0.0001 SOL) for real execution
+- **Minimal trade amounts** for real execution
+- **Limit orders use out-of-range prices** that won't execute
 - **Clear warnings** before spending real money
 - **Transaction confirmations** with blockchain signatures
 
 ## 💡 Important Notes
 
 ### Free vs Paid Operations
-- **🆓 FREE**: `get_swap_quote`, `get_balances`, `get_shield`, `search_token` - API calls only
-- **💰 PAID**: `execute_swap_transaction` - Executes real trades and spends SOL
+- **🆓 FREE**: `get_swap_quote`, `get_balances`, `get_shield`, `search_token`, `create_limit_order`, `cancel_limit_order`, `cancel_limit_orders`, `get_limit_orders` - API calls only
+- **💰 PAID**: `execute_swap_transaction`, `execute_limit_order` - Executes real trades and spends SOL
 
 ### Automatic Referral System
 - All orders include a 255 basis point (2.55%) referral fee (maximum allowed)
@@ -236,4 +262,4 @@ uv run pytest tests/ -v --run-paid-tests -s
 
 ## 🎉 Ready to Trade!
 
-Your Jupiter Ultra MCP server is ready for Solana DeFi interactions! 🚀
+Your Jupiter MCP server is ready for Solana DeFi interactions! 🚀

@@ -10,7 +10,7 @@
                 "@playwright/mcp@latest"
             ]
         },
-        "jupiter-ultra-mcp": {
+        "jupiter-mcp": {
             "command": "npx",
             "args": [
               "envmcp",
