@@ -301,24 +301,45 @@ class JupiterAPI:
         This function is FREE to call and does not execute any transactions.
         Use this to check token security before making trades. Essential for avoiding scam tokens.
 
+        IMPORTANT: You can check MULTIPLE tokens in a single request by comma-separating mints!
+        This is much more efficient than making multiple individual requests.
+
         Args:
-            mints: Comma-separated list of token mint addresses to check (e.g., "So11111111111111111111111111111111111111112,EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v")
+            mints: Comma-separated list of token mint addresses to check
+                   Example: "mint1,mint2,mint3" (no spaces between commas)
+                   No specific limit mentioned in API docs
 
         Returns:
             Dictionary containing:
             - success: Boolean indicating if the request was successful
-            - data: Security information including warnings for each token
+            - data: A "warnings" object with mint addresses as keys, each containing an array of warnings
             - error: Error message if request failed
 
+        Warning Types and Severities:
+            Info level warnings:
+            - NOT_VERIFIED: Token is not verified, double-check mint address
+            - LOW_ORGANIC_ACTIVITY: Token has low organic trading activity
+            - NEW_LISTING: Token is newly listed
+            - HAS_MINT_AUTHORITY: Owner can mint more tokens (dilution risk)
+
+            Warning level warnings:
+            - HAS_FREEZE_AUTHORITY: Owner can freeze your tokens (high risk!)
+            - Transfer tax tokens are disabled on Jupiter frontend
+
         Example:
-            >>> # Check security for SOL and USDC
-            >>> result = await api.get_shield(
-            ...     mints="So11111111111111111111111111111111111111112,EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
-            ... )
+            >>> # Check security for multiple tokens at once
+            >>> mints = "So11111111111111111111111111111111111111112,EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v,someTokenMint"
+            >>> result = await api.get_shield(mints=mints)
             >>> if result["success"]:
-            ...     for token_info in result["data"]:
-            ...         if token_info.get("warnings"):
-            ...             print(f"⚠️ Security warnings for {token_info['mint']}: {token_info['warnings']}")
+            ...     warnings = result["data"]["warnings"]
+            ...     for mint, mint_warnings in warnings.items():
+            ...         if mint_warnings:
+            ...             print(f"\n⚠️ Warnings for {mint}:")
+            ...             for warning in mint_warnings:
+            ...                 severity_icon = "🔴" if warning["severity"] == "warning" else "🟡"
+            ...                 print(f"  {severity_icon} {warning['type']}: {warning['message']}")
+            ...         else:
+            ...             print(f"✅ {mint}: No warnings found")
         """
         try:
             # Validate inputs
@@ -347,27 +368,44 @@ class JupiterAPI:
         This function is FREE to call and does not execute any transactions.
         Use this to find token mint addresses when you only know the symbol or name.
 
+        IMPORTANT: You can search for MULTIPLE tokens in a single request by comma-separating queries!
+        This is much more efficient than making multiple individual requests.
+
         Args:
-            query: Search query (token symbol like "SOL", name like "Solana", or partial mint address)
+            query: Search query - can be:
+                   - Single token: symbol ("SOL"), name ("Solana"), or mint address
+                   - Multiple tokens: comma-separated queries (e.g., "SOL,USDC,RAY")
+                   - Limit: Up to 100 mint addresses when searching by address
+                   - Response limit: Returns up to 20 tokens per symbol/name search
 
         Returns:
             Dictionary containing:
             - success: Boolean indicating if the request was successful
             - query: The original search query
-            - data: Array of matching tokens with mint addresses, symbols, names, and decimals
+            - data: Array of ALL matching tokens from ALL queries combined
             - error: Error message if request failed
 
         Example:
-            >>> # Search for SOL token
+            >>> # Search for a single token
             >>> result = await api.search_token(query="SOL")
             >>> if result["success"]:
             ...     for token in result["data"]:
             ...         print(f"Symbol: {token['symbol']}, Mint: {token['mint']}")
             >>>
-            >>> # Search for USDC token
-            >>> result = await api.search_token(query="USDC")
+            >>> # Search for MULTIPLE tokens at once (RECOMMENDED for efficiency!)
+            >>> result = await api.search_token(query="SOL,USDC,RAY,BONK")
             >>> if result["success"]:
-            ...     usdc_mint = result["data"][0]["mint"]  # Get first result
+            ...     # Returns all matching tokens for all queries in one response
+            ...     for token in result["data"]:
+            ...         print(f"{token['symbol']}: {token['mint']}")
+            >>>
+            >>> # Search by multiple mint addresses
+            >>> mints = "So11111111111111111111111111111111111111112,EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+            >>> result = await api.search_token(query=mints)
+            >>> if result["success"]:
+            ...     # Returns detailed info for all specified mints
+            ...     for token in result["data"]:
+            ...         print(f"{token['symbol']}: ${token.get('usdPrice', 'N/A')}")
         """
         try:
             # Validate inputs
@@ -477,12 +515,27 @@ class JupiterAPI:
         This function is FREE to call and does not execute any transactions.
         It returns an unsigned transaction that must be signed and executed.
 
+        ⚠️ IMPORTANT WARNINGS:
+        1. MINIMUM ORDER SIZE: Jupiter frontend enforces $5 USD minimum to ensure keeper profitability.
+           Programmatically, smaller orders are accepted but may never execute!
+
+        2. PRICE VALIDATION: The program does NOT check if your price makes sense!
+           - Buying above market price? Order executes immediately at a LOSS
+           - Setting wrong rate (e.g., 1000 USDC for 1 SOL)? You LOSE the difference!
+           - Jupiter frontend warns/blocks orders >5% above market - API does NOT!
+
+        3. TRANSFER TAX: Tokens with transfer tax extensions are disabled on frontend
+           but API will accept them - be careful!
+
+        4. SLIPPAGE: By default, trigger orders execute with 0 slippage (exact price).
+           Add slippage for better fill probability but at worse price.
+
         Args:
             input_mint: Input token mint address (token to sell)
             output_mint: Output token mint address (token to buy)
             making_amount: Amount of input token to sell in smallest unit
             taking_amount: Amount of output token to receive in smallest unit (sets the price)
-            slippage_bps: Slippage in basis points (0 for "Exact" mode, >0 for "Ultra" mode)
+            slippage_bps: Slippage in basis points (0 = exact price, >0 = accept worse price)
             expired_at: Unix timestamp when order expires (optional)
 
         Returns:
@@ -492,20 +545,30 @@ class JupiterAPI:
             - error: Error message if request failed
 
         Note:
-            - Minimum order size is $5 USD
-            - This creates but doesn't execute the order
             - Uses configured wallet as maker/payer
             - Includes automatic referral (2.55%)
+            - Order executes when market price reaches your target
 
         Example:
-            >>> # Create limit order: sell 0.01 SOL for 2.5 USDC (price: $250/SOL)
+            >>> # SAFE: Create limit order to sell 0.1 SOL when price reaches $200
+            >>> # Current market: 1 SOL = $180, so this waits for price to rise
             >>> result = await api.create_limit_order(
             ...     input_mint="So11111111111111111111111111111111111111112",  # SOL
             ...     output_mint="EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",  # USDC
-            ...     making_amount="10000000",  # 0.01 SOL
-            ...     taking_amount="2500000",   # 2.5 USDC (6 decimals)
-            ...     slippage_bps=100          # 1% slippage
+            ...     making_amount="100000000",  # 0.1 SOL (9 decimals)
+            ...     taking_amount="20000000",   # 20 USDC (6 decimals) = $200/SOL rate
+            ...     slippage_bps=50            # 0.5% slippage for better fills
             ... )
+            >>>
+            >>> # DANGEROUS: Wrong price - selling 1 SOL for only 1 USDC!
+            >>> # This executes immediately and you LOSE ~$179!
+            >>> # DON'T DO THIS:
+            >>> # result = await api.create_limit_order(
+            >>> #     input_mint="So11...112",
+            >>> #     output_mint="EPj...t1v",
+            >>> #     making_amount="1000000000",  # 1 SOL
+            >>> #     taking_amount="1000000"      # 1 USDC - HUGE LOSS!
+            >>> # )
         """
         try:
             # Validate inputs
