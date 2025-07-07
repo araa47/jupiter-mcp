@@ -1,8 +1,10 @@
-# Jupiter Ultra MCP
+# Jupiter MCP
 
-Build a Python MCP server with tools to access Jupiter Ultra API: https://dev.jup.ag/docs/ultra-api/
+Build a Python MCP server with tools to access Jupiter APIs:
+- Ultra API: https://dev.jup.ag/docs/ultra-api/
+- Trigger API: https://dev.jup.ag/docs/trigger-api/
 
-This MCP server requires a user's private key to access their Solana wallet and a Solana RPC URL to make transactions via the Jupiter Ultra API.
+This MCP server requires a user's private key to access their Solana wallet and a Solana RPC URL to make transactions via the Jupiter APIs.
 
 ## Requirements
 

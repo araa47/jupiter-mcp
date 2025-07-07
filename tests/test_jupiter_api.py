@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Unit Tests for Jupiter Ultra API Client
+Unit Tests for Jupiter API Client
 
 Tests the API methods directly without MCP server overhead.
 """
@@ -15,16 +15,16 @@ import pytest
 # Add the parent directory to the path to import our module
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.jupiter_ultra_api import JupiterUltraAPI
+from src.jupiter_api import JupiterAPI
 
 
-class TestJupiterUltraAPI:
-    """Test suite for Jupiter Ultra API client."""
+class TestJupiterAPI:
+    """Test suite for Jupiter API client."""
 
     @pytest.fixture
-    def api(self) -> JupiterUltraAPI:
+    def api(self) -> JupiterAPI:
         """Create a test API client."""
-        return JupiterUltraAPI()
+        return JupiterAPI()
 
     @pytest.fixture
     def mock_env_vars(self) -> Generator[None, None, None]:
@@ -44,7 +44,7 @@ class TestJupiterUltraAPI:
 
     @pytest.mark.asyncio
     async def test_get_balances_with_valid_address(
-        self, api: JupiterUltraAPI, mock_env_vars: Any
+        self, api: JupiterAPI, mock_env_vars: Any
     ) -> None:
         """Test get_balances with a valid wallet address."""
         # Test with a known devnet address (doesn't require our private key)
@@ -57,9 +57,7 @@ class TestJupiterUltraAPI:
         assert "success" in result
 
     @pytest.mark.asyncio
-    async def test_search_token_sol(
-        self, api: JupiterUltraAPI, mock_env_vars: Any
-    ) -> None:
+    async def test_search_token_sol(self, api: JupiterAPI, mock_env_vars: Any) -> None:
         """Test search_token functionality with SOL."""
         result = await api.search_token(query="SOL")
 
@@ -69,7 +67,7 @@ class TestJupiterUltraAPI:
 
     @pytest.mark.asyncio
     async def test_search_token_by_mint(
-        self, api: JupiterUltraAPI, mock_env_vars: Any
+        self, api: JupiterAPI, mock_env_vars: Any
     ) -> None:
         """Test search_token functionality with a known mint address."""
         # SOL mint address
@@ -83,7 +81,7 @@ class TestJupiterUltraAPI:
 
     @pytest.mark.asyncio
     async def test_get_shield_sol_usdc(
-        self, api: JupiterUltraAPI, mock_env_vars: Any
+        self, api: JupiterAPI, mock_env_vars: Any
     ) -> None:
         """Test get_shield functionality with SOL and USDC."""
         # SOL and USDC mint addresses
@@ -97,7 +95,7 @@ class TestJupiterUltraAPI:
 
     @pytest.mark.asyncio
     async def test_get_swap_quote_real_quote(
-        self, api: JupiterUltraAPI, mock_env_vars: Any
+        self, api: JupiterAPI, mock_env_vars: Any
     ) -> None:
         """Test get_swap_quote with real API call (no cost - just getting a quote)."""
         result = await api.get_swap_quote(
@@ -113,7 +111,7 @@ class TestJupiterUltraAPI:
 
     @pytest.mark.asyncio
     async def test_execute_swap_transaction_mock_response(
-        self, api: JupiterUltraAPI, mock_env_vars: Any
+        self, api: JupiterAPI, mock_env_vars: Any
     ) -> None:
         """Test execute_swap_transaction with mocked HTTP response."""
         with (
@@ -139,7 +137,7 @@ class TestJupiterUltraAPI:
 
     @pytest.mark.asyncio
     async def test_error_handling_invalid_params(
-        self, api: JupiterUltraAPI, mock_env_vars: Any
+        self, api: JupiterAPI, mock_env_vars: Any
     ) -> None:
         """Test error handling with invalid parameters."""
         # Test with invalid mint address (empty string)
@@ -149,7 +147,7 @@ class TestJupiterUltraAPI:
         assert result is not None
         assert isinstance(result, dict)
 
-    def test_get_wallet_info_no_private_key(self, api: JupiterUltraAPI) -> None:
+    def test_get_wallet_info_no_private_key(self, api: JupiterAPI) -> None:
         """Test get_wallet_info when no private key is set."""
         with patch.dict(os.environ, {}, clear=True):
             api.reset_cached_clients()  # Reset cached keypair
@@ -162,7 +160,7 @@ class TestJupiterUltraAPI:
             assert "error" in result
 
     def test_get_wallet_info_valid_config(
-        self, api: JupiterUltraAPI, mock_env_vars: Any
+        self, api: JupiterAPI, mock_env_vars: Any
     ) -> None:
         """Test get_wallet_info with valid configuration."""
         with patch.object(api, "get_keypair") as mock_keypair:
@@ -178,7 +176,7 @@ class TestJupiterUltraAPI:
 
     @pytest.mark.asyncio
     async def test_get_swap_quote_invalid_mint(
-        self, api: JupiterUltraAPI, mock_env_vars: Any
+        self, api: JupiterAPI, mock_env_vars: Any
     ) -> None:
         """Test get_swap_quote with invalid mint address."""
         result = await api.get_swap_quote(
@@ -194,7 +192,7 @@ class TestJupiterUltraAPI:
 
     @pytest.mark.asyncio
     async def test_get_swap_quote_zero_amount(
-        self, api: JupiterUltraAPI, mock_env_vars: Any
+        self, api: JupiterAPI, mock_env_vars: Any
     ) -> None:
         """Test get_swap_quote with zero amount."""
         result = await api.get_swap_quote(
@@ -209,7 +207,7 @@ class TestJupiterUltraAPI:
 
     @pytest.mark.asyncio
     async def test_get_swap_quote_empty_params(
-        self, api: JupiterUltraAPI, mock_env_vars: Any
+        self, api: JupiterAPI, mock_env_vars: Any
     ) -> None:
         """Test get_swap_quote with empty parameters."""
         result = await api.get_swap_quote(input_mint="", output_mint="", amount="")
@@ -220,7 +218,7 @@ class TestJupiterUltraAPI:
 
     @pytest.mark.asyncio
     async def test_execute_swap_transaction_empty_params(
-        self, api: JupiterUltraAPI, mock_env_vars: Any
+        self, api: JupiterAPI, mock_env_vars: Any
     ) -> None:
         """Test execute_swap_transaction with empty parameters."""
         result = await api.execute_swap_transaction(transaction="", request_id="")
@@ -233,7 +231,7 @@ class TestJupiterUltraAPI:
 
     @pytest.mark.asyncio
     async def test_execute_swap_transaction_invalid_transaction(
-        self, api: JupiterUltraAPI, mock_env_vars: Any
+        self, api: JupiterAPI, mock_env_vars: Any
     ) -> None:
         """Test execute_swap_transaction with invalid transaction format."""
         with patch.object(api, "sign_transaction") as mock_sign:
@@ -250,7 +248,7 @@ class TestJupiterUltraAPI:
 
     @pytest.mark.asyncio
     async def test_get_balances_invalid_address(
-        self, api: JupiterUltraAPI, mock_env_vars: Any
+        self, api: JupiterAPI, mock_env_vars: Any
     ) -> None:
         """Test get_balances with invalid wallet address."""
         result = await api.get_balances(wallet_address="invalid_address")
@@ -261,7 +259,7 @@ class TestJupiterUltraAPI:
 
     @pytest.mark.asyncio
     async def test_get_shield_empty_mints(
-        self, api: JupiterUltraAPI, mock_env_vars: Any
+        self, api: JupiterAPI, mock_env_vars: Any
     ) -> None:
         """Test get_shield with empty mints parameter."""
         result = await api.get_shield(mints="")
@@ -272,7 +270,7 @@ class TestJupiterUltraAPI:
 
     @pytest.mark.asyncio
     async def test_get_shield_invalid_mints(
-        self, api: JupiterUltraAPI, mock_env_vars: Any
+        self, api: JupiterAPI, mock_env_vars: Any
     ) -> None:
         """Test get_shield with invalid mint addresses."""
         result = await api.get_shield(mints="invalid_mint1,invalid_mint2")
@@ -283,7 +281,7 @@ class TestJupiterUltraAPI:
 
     @pytest.mark.asyncio
     async def test_search_token_numeric_query(
-        self, api: JupiterUltraAPI, mock_env_vars: Any
+        self, api: JupiterAPI, mock_env_vars: Any
     ) -> None:
         """Test search_token with numeric query."""
         result = await api.search_token(query="123")
@@ -294,7 +292,7 @@ class TestJupiterUltraAPI:
 
     @pytest.mark.asyncio
     async def test_search_token_special_characters(
-        self, api: JupiterUltraAPI, mock_env_vars: Any
+        self, api: JupiterAPI, mock_env_vars: Any
     ) -> None:
         """Test search_token with special characters."""
         result = await api.search_token(query="!@#$%")
@@ -305,7 +303,7 @@ class TestJupiterUltraAPI:
 
     @pytest.mark.asyncio
     async def test_http_timeout_handling(
-        self, api: JupiterUltraAPI, mock_env_vars: Any
+        self, api: JupiterAPI, mock_env_vars: Any
     ) -> None:
         """Test HTTP timeout handling."""
         with patch.object(api, "make_http_request") as mock_request:
@@ -318,21 +316,21 @@ class TestJupiterUltraAPI:
             assert result.get("success") is False
             assert "error" in result
 
-    def test_sign_transaction_empty_input(self, api: JupiterUltraAPI) -> None:
+    def test_sign_transaction_empty_input(self, api: JupiterAPI) -> None:
         """Test sign_transaction with empty input."""
         with patch.object(api, "get_keypair"):
             with pytest.raises(Exception) as exc_info:
                 api.sign_transaction("")
             assert "cannot be empty" in str(exc_info.value).lower()
 
-    def test_sign_transaction_invalid_base64(self, api: JupiterUltraAPI) -> None:
+    def test_sign_transaction_invalid_base64(self, api: JupiterAPI) -> None:
         """Test sign_transaction with invalid base64."""
         with patch.object(api, "get_keypair"):
             with pytest.raises(Exception) as exc_info:
                 api.sign_transaction("invalid_base64!")
             assert "invalid base64" in str(exc_info.value).lower()
 
-    def test_reset_cached_clients(self, api: JupiterUltraAPI) -> None:
+    def test_reset_cached_clients(self, api: JupiterAPI) -> None:
         """Test reset_cached_clients functionality."""
         # Test that reset_cached_clients method exists and is callable
         # We can't test the internal state directly due to protected attributes
@@ -348,7 +346,7 @@ class TestJupiterUltraAPI:
 
     @pytest.mark.asyncio
     async def test_create_limit_order_mock_response(
-        self, api: JupiterUltraAPI, mock_env_vars: Any
+        self, api: JupiterAPI, mock_env_vars: Any
     ) -> None:
         """Test create_limit_order with mocked HTTP response."""
         with patch.object(api, "make_http_request") as mock_request:
@@ -374,7 +372,7 @@ class TestJupiterUltraAPI:
 
     @pytest.mark.asyncio
     async def test_execute_limit_order_mock_response(
-        self, api: JupiterUltraAPI, mock_env_vars: Any
+        self, api: JupiterAPI, mock_env_vars: Any
     ) -> None:
         """Test execute_limit_order with mocked HTTP response."""
         with (
@@ -400,7 +398,7 @@ class TestJupiterUltraAPI:
 
     @pytest.mark.asyncio
     async def test_cancel_limit_order_mock_response(
-        self, api: JupiterUltraAPI, mock_env_vars: Any
+        self, api: JupiterAPI, mock_env_vars: Any
     ) -> None:
         """Test cancel_limit_order with mocked HTTP response."""
         with patch.object(api, "make_http_request") as mock_request:
@@ -418,7 +416,7 @@ class TestJupiterUltraAPI:
 
     @pytest.mark.asyncio
     async def test_cancel_limit_orders_mock_response(
-        self, api: JupiterUltraAPI, mock_env_vars: Any
+        self, api: JupiterAPI, mock_env_vars: Any
     ) -> None:
         """Test cancel_limit_orders with mocked HTTP response."""
         with patch.object(api, "make_http_request") as mock_request:
@@ -438,7 +436,7 @@ class TestJupiterUltraAPI:
 
     @pytest.mark.asyncio
     async def test_get_limit_orders_mock_response(
-        self, api: JupiterUltraAPI, mock_env_vars: Any
+        self, api: JupiterAPI, mock_env_vars: Any
     ) -> None:
         """Test get_limit_orders with mocked HTTP response."""
         with patch.object(api, "make_http_request") as mock_request:
@@ -464,7 +462,7 @@ class TestJupiterUltraAPI:
 
     @pytest.mark.asyncio
     async def test_create_limit_order_invalid_params(
-        self, api: JupiterUltraAPI, mock_env_vars: Any
+        self, api: JupiterAPI, mock_env_vars: Any
     ) -> None:
         """Test create_limit_order with invalid parameters."""
         # Test with empty input_mint
@@ -482,7 +480,7 @@ class TestJupiterUltraAPI:
 
     @pytest.mark.asyncio
     async def test_create_limit_order_zero_amount(
-        self, api: JupiterUltraAPI, mock_env_vars: Any
+        self, api: JupiterAPI, mock_env_vars: Any
     ) -> None:
         """Test create_limit_order with zero amount."""
         result = await api.create_limit_order(
@@ -499,7 +497,7 @@ class TestJupiterUltraAPI:
 
     @pytest.mark.asyncio
     async def test_cancel_limit_order_empty_order(
-        self, api: JupiterUltraAPI, mock_env_vars: Any
+        self, api: JupiterAPI, mock_env_vars: Any
     ) -> None:
         """Test cancel_limit_order with empty order address."""
         result = await api.cancel_limit_order(order="")
@@ -511,7 +509,7 @@ class TestJupiterUltraAPI:
 
     @pytest.mark.asyncio
     async def test_get_limit_orders_invalid_status(
-        self, api: JupiterUltraAPI, mock_env_vars: Any
+        self, api: JupiterAPI, mock_env_vars: Any
     ) -> None:
         """Test get_limit_orders with invalid order status."""
         result = await api.get_limit_orders(order_status="invalid_status")
@@ -523,7 +521,7 @@ class TestJupiterUltraAPI:
 
     @pytest.mark.asyncio
     async def test_create_limit_order_with_expiry(
-        self, api: JupiterUltraAPI, mock_env_vars: Any
+        self, api: JupiterAPI, mock_env_vars: Any
     ) -> None:
         """Test create_limit_order with expiry timestamp."""
         with patch.object(api, "make_http_request") as mock_request:
@@ -555,13 +553,13 @@ class TestJupiterUltraAPI:
 # Only run with --run-paid-tests flag
 
 
-class TestJupiterUltraAPIPaid:
+class TestJupiterAPIPaid:
     """Paid test suite that requires actual SOL for transactions."""
 
     @pytest.fixture
-    def api(self) -> JupiterUltraAPI:
+    def api(self) -> JupiterAPI:
         """Create a test API client."""
-        return JupiterUltraAPI()
+        return JupiterAPI()
 
     @pytest.fixture
     def real_env_vars(self) -> Generator[None, None, None]:
@@ -572,9 +570,7 @@ class TestJupiterUltraAPIPaid:
         yield
 
     @pytest.mark.asyncio
-    async def test_real_get_balances(
-        self, api: JupiterUltraAPI, real_env_vars: Any
-    ) -> None:
+    async def test_real_get_balances(self, api: JupiterAPI, real_env_vars: Any) -> None:
         """Test get_balances with real wallet."""
         result = await api.get_balances()
 
@@ -585,7 +581,7 @@ class TestJupiterUltraAPIPaid:
 
     @pytest.mark.asyncio
     async def test_real_swap_quote_creation(
-        self, api: JupiterUltraAPI, real_env_vars: Any
+        self, api: JupiterAPI, real_env_vars: Any
     ) -> None:
         """Test creating a real swap quote (no execution)."""
         print("\n🔄 Testing real swap quote creation...")
@@ -603,9 +599,7 @@ class TestJupiterUltraAPIPaid:
         assert "success" in result or "error" in result
 
     @pytest.mark.asyncio
-    async def test_real_shield_check(
-        self, api: JupiterUltraAPI, real_env_vars: Any
-    ) -> None:
+    async def test_real_shield_check(self, api: JupiterAPI, real_env_vars: Any) -> None:
         """Test shield check with real tokens."""
         # Check SOL and USDC
         result = await api.get_shield(
@@ -619,7 +613,7 @@ class TestJupiterUltraAPIPaid:
     @pytest.mark.paid
     @pytest.mark.asyncio
     async def test_real_trade_execution(
-        self, api: JupiterUltraAPI, real_env_vars: Any
+        self, api: JupiterAPI, real_env_vars: Any
     ) -> None:
         """Test executing a real trade: get_swap_quote -> execute_swap_transaction."""
         print("\n🔄 Step 1: Getting swap quote...")
@@ -687,7 +681,7 @@ class TestJupiterUltraAPIPaid:
 
     @pytest.mark.asyncio
     async def test_real_limit_order_creation(
-        self, api: JupiterUltraAPI, real_env_vars: Any
+        self, api: JupiterAPI, real_env_vars: Any
     ) -> None:
         """Test creating a real limit order quote (no execution)."""
         print("\n📊 Testing real limit order creation...")
@@ -711,7 +705,7 @@ class TestJupiterUltraAPIPaid:
 
     @pytest.mark.asyncio
     async def test_real_get_limit_orders(
-        self, api: JupiterUltraAPI, real_env_vars: Any
+        self, api: JupiterAPI, real_env_vars: Any
     ) -> None:
         """Test getting real limit orders for configured wallet."""
         print("\n📊 Testing get limit orders...")
@@ -733,19 +727,20 @@ class TestJupiterUltraAPIPaid:
     @pytest.mark.paid
     @pytest.mark.asyncio
     async def test_real_limit_order_execution(
-        self, api: JupiterUltraAPI, real_env_vars: Any
+        self, api: JupiterAPI, real_env_vars: Any
     ) -> None:
         """Test executing a real limit order: create_limit_order -> execute_limit_order."""
         print("\n📊 Step 1: Creating limit order quote...")
 
-        # Create a limit order with a very high price so it won't execute immediately
-        # Sell 0.0001 SOL for 0.05 USDC (price: $500/SOL - won't execute at current prices)
+        # Create a limit order with a price 20% above market so it won't execute immediately
+        # Using a more reasonable amount that meets the $5 minimum
+        # Assuming SOL is around $150, we'll ask for $180/SOL
         order_result = await api.create_limit_order(
-            input_mint="So11111111111111111111111111111111111111111112",  # SOL
+            input_mint="So11111111111111111111111111111111111111112",  # SOL
             output_mint="EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",  # USDC
-            making_amount="100000",  # 0.0001 SOL (very small for safety)
-            taking_amount="50000",  # 0.05 USDC (high price per SOL)
-            slippage_bps=0,  # Exact mode
+            making_amount="40000000",  # 0.04 SOL (about $6 at $150/SOL)
+            taking_amount="7200000",  # 7.2 USDC (implies $180/SOL - 20% above market)
+            slippage_bps=0,  # Exact mode - only execute at this exact price
         )
 
         assert order_result is not None
@@ -765,7 +760,8 @@ class TestJupiterUltraAPIPaid:
                 print(f"📦 Transaction length: {len(transaction)} characters")
 
                 # Step 2: Execute the limit order (this will create it on-chain)
-                print("⚡ Step 2: Creating limit order on-chain (SPENDING SOL!)...")
+                print("⚡ Step 2: Creating limit order on-chain...")
+                print("💰 Order details: Sell 0.04 SOL for 7.2 USDC (price: $180/SOL)")
                 execution_result = await api.execute_limit_order(
                     transaction=transaction,
                     request_id=request_id,
@@ -786,9 +782,40 @@ class TestJupiterUltraAPIPaid:
                         assert signature is not None
                         assert len(signature) > 0
 
-                        # Optional: Try to cancel the order to clean up
+                        # Step 3: Wait a bit and verify the order exists
+                        print(
+                            "\n⏳ Step 3: Waiting 5 seconds then checking active orders..."
+                        )
+                        import asyncio
+
+                        await asyncio.sleep(5)
+
+                        # Get active orders to verify our order is there
+                        active_orders = await api.get_limit_orders(
+                            order_status="active"
+                        )
+                        if active_orders.get("success") and active_orders.get("data"):
+                            print(
+                                f"📋 Found {len(active_orders['data'])} active orders"
+                            )
+
+                            # Look for our order
+                            our_order = None
+                            for order in active_orders["data"]:
+                                if order.get("orderAccount") == order_account:
+                                    our_order = order
+                                    break
+
+                            if our_order:
+                                print(f"✅ Found our order: {our_order}")
+                            else:
+                                print(
+                                    "⚠️ Our order not found in active orders (might have executed)"
+                                )
+
+                        # Step 4: Cancel the order to clean up
                         if order_account:
-                            print("🧹 Step 3: Canceling the limit order...")
+                            print("\n🧹 Step 4: Canceling the limit order...")
                             cancel_result = await api.cancel_limit_order(
                                 order=order_account
                             )
@@ -800,11 +827,26 @@ class TestJupiterUltraAPIPaid:
                                 )
 
                                 if cancel_tx and cancel_request_id:
+                                    print("📝 Executing cancellation transaction...")
                                     cancel_exec = await api.execute_limit_order(
                                         transaction=cancel_tx,
                                         request_id=cancel_request_id,
                                     )
-                                    print(f"🧹 Cancel result: {cancel_exec}")
+                                    if cancel_exec.get("success"):
+                                        print("✅ Order cancelled successfully!")
+                                        print(
+                                            f"🔗 Cancel signature: {cancel_exec['data'].get('signature')}"
+                                        )
+                                    else:
+                                        print(
+                                            f"⚠️ Cancel execution failed: {cancel_exec}"
+                                        )
+                                else:
+                                    print(
+                                        "⚠️ Cancel result missing transaction or requestId"
+                                    )
+                            else:
+                                print(f"⚠️ Cancel order failed: {cancel_result}")
                     else:
                         print(
                             "⚠️  Limit order execution completed but no signature returned"
@@ -823,4 +865,9 @@ class TestJupiterUltraAPIPaid:
         else:
             print("⚠️  Order creation failed")
             print(f"Order response: {order_result}")
+            # Check if it's a minimum size error
+            if "error" in order_result and "minimum" in order_result["error"].lower():
+                print(
+                    "💡 Note: Order might be below $5 minimum. Adjust amounts if needed."
+                )
             pytest.fail("Limit order creation failed")

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Jupiter Ultra API Client
+Jupiter API Client
 
-A Python client for interacting with the Jupiter Ultra API.
+A Python client for interacting with the Jupiter APIs (Ultra & Trigger).
 """
 
 import asyncio
@@ -24,11 +24,11 @@ load_dotenv()
 DEV_REFERRER_WALLET = "8cK8hCyRQCp52nVuPLnLL71afkRvRcFibSwHMjGFT8bm"
 
 
-class JupiterUltraAPI:
-    """Jupiter Ultra API client for Solana blockchain interactions."""
+class JupiterAPI:
+    """Jupiter API client for Solana blockchain interactions."""
 
     def __init__(self):
-        """Initialize the Jupiter Ultra API client."""
+        """Initialize the Jupiter API client."""
         self.rpc_url = os.getenv("SOLANA_RPC_URL", "https://api.devnet.solana.com")
         self.private_key = os.getenv("PRIVATE_KEY")
         self.network = os.getenv("SOLANA_NETWORK", "devnet")
@@ -534,23 +534,34 @@ class JupiterUltraAPI:
             keypair = self.get_keypair()
             maker = str(keypair.pubkey())
 
-            # Build request payload
+            # Build params object
+            params: Dict[str, str] = {
+                "makingAmount": making_amount,
+                "takingAmount": taking_amount,
+            }
+
+            # Add optional parameters to params
+            if slippage_bps is not None and slippage_bps > 0:
+                params["slippageBps"] = str(slippage_bps)
+
+            if expired_at is not None:
+                params["expiredAt"] = str(expired_at)
+
+            # Add referral fee in params as feeBps
+            if DEV_REFERRER_WALLET:
+                params["feeBps"] = "255"  # 255 basis points (2.55%)
+
+            # Build request payload according to API docs
             payload = {
                 "inputMint": input_mint,
                 "outputMint": output_mint,
-                "makingAmount": making_amount,
-                "takingAmount": taking_amount,
                 "maker": maker,
                 "payer": maker,
-                "slippageBps": slippage_bps,
-                "referralAccount": DEV_REFERRER_WALLET,
-                "referralFee": "255",  # 255 basis points (2.55%)
+                "params": params,
                 "computeUnitPrice": "auto",
+                # Note: feeAccount would be the referral token account of the output mint
+                # We're not setting it here as it requires a specific token account setup
             }
-
-            # Add optional expiry
-            if expired_at is not None:
-                payload["expiredAt"] = expired_at
 
             # Make the API request
             url = f"{self.trigger_base_url}/createOrder"

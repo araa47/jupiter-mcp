@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 """
-Jupiter Ultra MCP Server
+Jupiter MCP Server
 
-This module provides an MCP server for interacting with the Jupiter Ultra API.
+This module provides an MCP server for interacting with the Jupiter APIs.
 """
 
 from fastmcp import FastMCP
 
-from .jupiter_ultra_api import JupiterUltraAPI
+from .jupiter_api import JupiterAPI
 
 # Create the FastMCP server instance
-mcp = FastMCP("Jupiter Ultra MCP Server")  # type: ignore
+mcp = FastMCP("Jupiter MCP Server")  # type: ignore
 
-# Initialize the Jupiter Ultra API client
-api = JupiterUltraAPI()
+# Initialize the Jupiter API client
+api = JupiterAPI()
 
 # Register all API methods as MCP tools using the clean pattern
 # Phase 1: Ultra API tools (immediate swaps)
@@ -47,8 +47,8 @@ Wallet Configuration:
 
 
 def main():
-    """Main entry point for the Jupiter Ultra MCP server."""
-    print("🚀 Jupiter Ultra MCP Server")
+    """Main entry point for the Jupiter MCP server."""
+    print("🚀 Jupiter MCP Server")
     print("=" * 50)
     print("")
     print("🔗 Connection Details:")
@@ -66,14 +66,14 @@ def main():
     print("")
     print("🛠️  Available Tools:")
     print("")
-    print("  💱 Ultra API (Immediate Swaps):")
+    print("  💱 Jupiter Ultra API (Immediate Swaps):")
     print("    • get_swap_quote - Get swap quotes and unsigned transactions (FREE)")
     print("    • execute_swap_transaction - Sign and execute swap transactions (PAID)")
     print("    • get_balances - Get wallet token balances (FREE)")
     print("    • get_shield - Get token security information (FREE)")
     print("    • search_token - Search for tokens (FREE)")
     print("")
-    print("  📊 Trigger API (Limit Orders):")
+    print("  📊 Jupiter Trigger API (Limit Orders):")
     print("    • create_limit_order - Create limit order transactions (FREE)")
     print("    • execute_limit_order - Sign and execute limit orders (PAID)")
     print("    • cancel_limit_order - Cancel a single limit order (FREE)")

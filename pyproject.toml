@@ -1,7 +1,11 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
-name = "jupiter-ultra-mcp"
+name = "jupiter-mcp"
 version = "0.1.0"
-description = "Jupiter Ultra MCP Server - Python MCP server with tools to access Jupiter Ultra API"
+description = "Jupiter MCP Server - Model Context Protocol server for Jupiter Ultra and Trigger APIs"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -13,11 +17,7 @@ dependencies = [
 ]
 
 [project.scripts]
-jupiter-ultra-mcp = "src.server:main"
-
-[build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
+jupiter-mcp = "src.server:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
@@ -44,6 +44,10 @@ venv = ".venv"
 filterwarnings = [
     "ignore::DeprecationWarning",
 ]
+markers = [
+    "paid: marks tests that execute real trades and spend money (deselect with '-m \"not paid\"')",
+]
+addopts = "-m 'not paid'"
 
 [tool.isort]
 profile = "black"
