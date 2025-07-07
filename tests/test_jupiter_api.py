@@ -349,12 +349,17 @@ class TestJupiterAPI:
         self, api: JupiterAPI, mock_env_vars: Any
     ) -> None:
         """Test create_limit_order with mocked HTTP response."""
-        with patch.object(api, "make_http_request") as mock_request:
+        with (
+            patch.object(api, "make_http_request") as mock_request,
+            patch.object(api, "get_keypair") as mock_keypair,
+        ):
             mock_request.return_value = {
                 "order": "mock-order-account-address",
                 "transaction": "mock-unsigned-transaction-base64",
                 "requestId": "mock-request-id",
             }
+            # Mock keypair to return a test wallet address
+            mock_keypair.return_value.pubkey.return_value = "test_wallet_address"
 
             result = await api.create_limit_order(
                 input_mint="So11111111111111111111111111111111111111112",  # SOL
@@ -401,11 +406,16 @@ class TestJupiterAPI:
         self, api: JupiterAPI, mock_env_vars: Any
     ) -> None:
         """Test cancel_limit_order with mocked HTTP response."""
-        with patch.object(api, "make_http_request") as mock_request:
+        with (
+            patch.object(api, "make_http_request") as mock_request,
+            patch.object(api, "get_keypair") as mock_keypair,
+        ):
             mock_request.return_value = {
                 "transaction": "mock-cancel-transaction-base64",
                 "requestId": "mock-cancel-request-id",
             }
+            # Mock keypair to return a test wallet address
+            mock_keypair.return_value.pubkey.return_value = "test_wallet_address"
 
             result = await api.cancel_limit_order(order="mock-order-account-address")
 
@@ -419,11 +429,16 @@ class TestJupiterAPI:
         self, api: JupiterAPI, mock_env_vars: Any
     ) -> None:
         """Test cancel_limit_orders with mocked HTTP response."""
-        with patch.object(api, "make_http_request") as mock_request:
+        with (
+            patch.object(api, "make_http_request") as mock_request,
+            patch.object(api, "get_keypair") as mock_keypair,
+        ):
             mock_request.return_value = {
                 "transactions": ["mock-tx-1", "mock-tx-2"],
                 "requestId": "mock-batch-cancel-request-id",
             }
+            # Mock keypair to return a test wallet address
+            mock_keypair.return_value.pubkey.return_value = "test_wallet_address"
 
             result = await api.cancel_limit_orders(
                 orders=["order1", "order2", "order3"]
@@ -439,7 +454,10 @@ class TestJupiterAPI:
         self, api: JupiterAPI, mock_env_vars: Any
     ) -> None:
         """Test get_limit_orders with mocked HTTP response."""
-        with patch.object(api, "make_http_request") as mock_request:
+        with (
+            patch.object(api, "make_http_request") as mock_request,
+            patch.object(api, "get_keypair") as mock_keypair,
+        ):
             mock_request.return_value = {
                 "orders": [
                     {
@@ -451,6 +469,8 @@ class TestJupiterAPI:
                 ],
                 "hasMoreData": False,
             }
+            # Mock keypair to return a test wallet address
+            mock_keypair.return_value.pubkey.return_value = "test_wallet_address"
 
             result = await api.get_limit_orders(order_status="active")
 
@@ -524,12 +544,17 @@ class TestJupiterAPI:
         self, api: JupiterAPI, mock_env_vars: Any
     ) -> None:
         """Test create_limit_order with expiry timestamp."""
-        with patch.object(api, "make_http_request") as mock_request:
+        with (
+            patch.object(api, "make_http_request") as mock_request,
+            patch.object(api, "get_keypair") as mock_keypair,
+        ):
             mock_request.return_value = {
                 "order": "mock-order-with-expiry",
                 "transaction": "mock-transaction",
                 "requestId": "mock-request-id",
             }
+            # Mock keypair to return a test wallet address
+            mock_keypair.return_value.pubkey.return_value = "test_wallet_address"
 
             # Set expiry to 1 hour from now
             import time
