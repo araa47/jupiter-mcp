@@ -1,10 +1,10 @@
 # Jupiter MCP Server
 
-A Python MCP (Model Context Protocol) server for the [Jupiter API](https://dev.jup.ag/docs/)
+A Python MCP (Model Context Protocol) server for the [Jupiter API](https://dev.jup.ag/docs/) Solana's premier DEX aggregator
 
 Currently supports
--  [Ultra API](https://dev.jup.ag/docs/ultra-api)
-- [Trigger API](https://dev.jup.ag/docs/trigger-api/) - Solana's premier DEX aggregator.
+- [Ultra API](https://dev.jup.ag/docs/ultra-api)
+- [Trigger API](https://dev.jup.ag/docs/trigger-api/)
 
 ## 🚀 Features
 
@@ -157,77 +157,6 @@ This approach uses `envmcp` to securely load your PRIVATE_KEY from a `.env` file
 - **Swaps** (Ultra API): Execute immediately at current market price
 - **Limit Orders** (Trigger API): Execute automatically when your target price is reached
 
-## 📝 Examples
-
-### Immediate Swap Example
-```python
-# Get a quote to swap 0.001 SOL to USDC
-quote = await get_swap_quote(
-    input_mint="So11111111111111111111111111111111111111112",  # SOL
-    output_mint="EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",  # USDC
-    amount="1000000"  # 0.001 SOL (9 decimals)
-)
-
-# Execute the swap
-if quote["success"]:
-    result = await execute_swap_transaction(
-        transaction=quote["data"]["transaction"],
-        request_id=quote["data"]["requestId"]
-    )
-```
-
-### Limit Order Example
-```python
-# Create a limit order: sell 0.01 SOL when price reaches $250
-order = await create_limit_order(
-    input_mint="So11111111111111111111111111111111111111112",  # SOL
-    output_mint="EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",  # USDC
-    making_amount="10000000",  # 0.01 SOL to sell
-    taking_amount="2500000",   # 2.5 USDC to receive (implies $250/SOL)
-    slippage_bps=100          # 1% slippage tolerance
-)
-
-# Execute the limit order (creates it on-chain)
-if order["success"]:
-    result = await execute_limit_order(
-        transaction=order["data"]["transaction"],
-        request_id=order["data"]["requestId"]
-    )
-
-# Check your active orders
-active_orders = await get_limit_orders(order_status="active")
-
-# Cancel an order if needed
-if active_orders["success"] and active_orders["data"]:
-    cancel = await cancel_limit_order(order=active_orders["data"][0]["orderAccount"])
-    if cancel["success"]:
-        await execute_limit_order(
-            transaction=cancel["data"]["transaction"],
-            request_id=cancel["data"]["requestId"]
-        )
-```
-
-## ⚠️ Important Notes
-
-### Limit Orders
-- **Minimum Order Size**: $5 USD
-- **Order Fees**:
-  - Stable pairs: 0.03%
-  - Other pairs: 0.1%
-  - Plus automatic referral fee: 2.55%
-- **Order Execution**: Orders execute automatically when market conditions are met
-- **Expiry**: Orders can have optional expiry timestamps
-- **Slippage Modes**:
-  - Exact mode (`slippage_bps=0`): Order executes only at exact price
-  - Ultra mode (`slippage_bps>0`): Higher success rate with slippage tolerance
-
-### Safety Tips
-1. **Test with small amounts first** (0.0001 SOL)
-2. **Check token security** with `get_shield` before trading unknown tokens
-3. **Monitor your orders** with `get_limit_orders`
-4. **Set reasonable prices** for limit orders to avoid immediate execution
-5. **Use expiry timestamps** to auto-cancel old orders
-
 ## 🔧 Alternative Installation (Development)
 
 For local development or testing:
@@ -235,12 +164,13 @@ For local development or testing:
 ### Prerequisites
 - Python 3.12+
 - [uv](https://github.com/astral-sh/uv) for dependency management
+- [direnv](https://direnv.net/)
 
 ### Setup
 ```bash
 git clone https://github.com/araa47/jupiter-ultra-mcp
 cd jupiter-ultra-mcp
-uv sync
+direnv allow
 cp .env.example .env
 # Edit .env with your configuration
 ```
@@ -332,4 +262,4 @@ uv run pytest tests/ -v --run-paid-tests -s
 
 ## 🎉 Ready to Trade!
 
-Your Jupiter Ultra MCP server is ready for Solana DeFi interactions! 🚀
+Your Jupiter MCP server is ready for Solana DeFi interactions! 🚀
