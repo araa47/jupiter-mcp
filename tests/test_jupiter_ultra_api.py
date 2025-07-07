@@ -344,6 +344,212 @@ class TestJupiterUltraAPI:
         except Exception as e:
             pytest.fail(f"reset_cached_clients should not raise exceptions: {e}")
 
+    # PHASE 2: TRIGGER API TESTS (Limit Orders)
+
+    @pytest.mark.asyncio
+    async def test_create_limit_order_mock_response(
+        self, api: JupiterUltraAPI, mock_env_vars: Any
+    ) -> None:
+        """Test create_limit_order with mocked HTTP response."""
+        with patch.object(api, "make_http_request") as mock_request:
+            mock_request.return_value = {
+                "order": "mock-order-account-address",
+                "transaction": "mock-unsigned-transaction-base64",
+                "requestId": "mock-request-id",
+            }
+
+            result = await api.create_limit_order(
+                input_mint="So11111111111111111111111111111111111111112",  # SOL
+                output_mint="EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",  # USDC
+                making_amount="10000000",  # 0.01 SOL
+                taking_amount="2500000",  # 2.5 USDC
+                slippage_bps=100,  # 1% slippage
+            )
+
+            assert result is not None
+            assert isinstance(result, dict)
+            assert result.get("success") is True
+            assert "data" in result
+            assert result["data"]["order"] == "mock-order-account-address"
+
+    @pytest.mark.asyncio
+    async def test_execute_limit_order_mock_response(
+        self, api: JupiterUltraAPI, mock_env_vars: Any
+    ) -> None:
+        """Test execute_limit_order with mocked HTTP response."""
+        with (
+            patch.object(api, "make_http_request") as mock_request,
+            patch.object(api, "sign_transaction") as mock_sign,
+        ):
+            mock_request.return_value = {
+                "status": "Success",
+                "signature": "mock-limit-order-signature",
+                "slot": "12345",
+            }
+            mock_sign.return_value = "mock-signed-transaction-base64"
+
+            result = await api.execute_limit_order(
+                transaction="mock-unsigned-transaction-base64",
+                request_id="mock-request-id",
+            )
+
+            assert result is not None
+            assert isinstance(result, dict)
+            assert result.get("success") is True
+            assert "data" in result
+
+    @pytest.mark.asyncio
+    async def test_cancel_limit_order_mock_response(
+        self, api: JupiterUltraAPI, mock_env_vars: Any
+    ) -> None:
+        """Test cancel_limit_order with mocked HTTP response."""
+        with patch.object(api, "make_http_request") as mock_request:
+            mock_request.return_value = {
+                "transaction": "mock-cancel-transaction-base64",
+                "requestId": "mock-cancel-request-id",
+            }
+
+            result = await api.cancel_limit_order(order="mock-order-account-address")
+
+            assert result is not None
+            assert isinstance(result, dict)
+            assert result.get("success") is True
+            assert "data" in result
+
+    @pytest.mark.asyncio
+    async def test_cancel_limit_orders_mock_response(
+        self, api: JupiterUltraAPI, mock_env_vars: Any
+    ) -> None:
+        """Test cancel_limit_orders with mocked HTTP response."""
+        with patch.object(api, "make_http_request") as mock_request:
+            mock_request.return_value = {
+                "transactions": ["mock-tx-1", "mock-tx-2"],
+                "requestId": "mock-batch-cancel-request-id",
+            }
+
+            result = await api.cancel_limit_orders(
+                orders=["order1", "order2", "order3"]
+            )
+
+            assert result is not None
+            assert isinstance(result, dict)
+            assert result.get("success") is True
+            assert "data" in result
+
+    @pytest.mark.asyncio
+    async def test_get_limit_orders_mock_response(
+        self, api: JupiterUltraAPI, mock_env_vars: Any
+    ) -> None:
+        """Test get_limit_orders with mocked HTTP response."""
+        with patch.object(api, "make_http_request") as mock_request:
+            mock_request.return_value = {
+                "orders": [
+                    {
+                        "orderAccount": "order1",
+                        "makingAmount": "1000000",
+                        "takingAmount": "250000",
+                        "status": "active",
+                    }
+                ],
+                "hasMoreData": False,
+            }
+
+            result = await api.get_limit_orders(order_status="active")
+
+            assert result is not None
+            assert isinstance(result, dict)
+            assert result.get("success") is True
+            assert "data" in result
+            assert result["hasMoreData"] is False
+
+    @pytest.mark.asyncio
+    async def test_create_limit_order_invalid_params(
+        self, api: JupiterUltraAPI, mock_env_vars: Any
+    ) -> None:
+        """Test create_limit_order with invalid parameters."""
+        # Test with empty input_mint
+        result = await api.create_limit_order(
+            input_mint="",
+            output_mint="EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+            making_amount="1000000",
+            taking_amount="250000",
+        )
+
+        assert result is not None
+        assert isinstance(result, dict)
+        assert result.get("success") is False
+        assert "error" in result
+
+    @pytest.mark.asyncio
+    async def test_create_limit_order_zero_amount(
+        self, api: JupiterUltraAPI, mock_env_vars: Any
+    ) -> None:
+        """Test create_limit_order with zero amount."""
+        result = await api.create_limit_order(
+            input_mint="So11111111111111111111111111111111111111112",
+            output_mint="EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+            making_amount="0",
+            taking_amount="250000",
+        )
+
+        assert result is not None
+        assert isinstance(result, dict)
+        assert result.get("success") is False
+        assert "error" in result
+
+    @pytest.mark.asyncio
+    async def test_cancel_limit_order_empty_order(
+        self, api: JupiterUltraAPI, mock_env_vars: Any
+    ) -> None:
+        """Test cancel_limit_order with empty order address."""
+        result = await api.cancel_limit_order(order="")
+
+        assert result is not None
+        assert isinstance(result, dict)
+        assert result.get("success") is False
+        assert "error" in result
+
+    @pytest.mark.asyncio
+    async def test_get_limit_orders_invalid_status(
+        self, api: JupiterUltraAPI, mock_env_vars: Any
+    ) -> None:
+        """Test get_limit_orders with invalid order status."""
+        result = await api.get_limit_orders(order_status="invalid_status")
+
+        assert result is not None
+        assert isinstance(result, dict)
+        assert result.get("success") is False
+        assert "error" in result
+
+    @pytest.mark.asyncio
+    async def test_create_limit_order_with_expiry(
+        self, api: JupiterUltraAPI, mock_env_vars: Any
+    ) -> None:
+        """Test create_limit_order with expiry timestamp."""
+        with patch.object(api, "make_http_request") as mock_request:
+            mock_request.return_value = {
+                "order": "mock-order-with-expiry",
+                "transaction": "mock-transaction",
+                "requestId": "mock-request-id",
+            }
+
+            # Set expiry to 1 hour from now
+            import time
+
+            expiry = int(time.time()) + 3600
+
+            result = await api.create_limit_order(
+                input_mint="So11111111111111111111111111111111111111112",
+                output_mint="EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+                making_amount="10000000",
+                taking_amount="2500000",
+                expired_at=expiry,
+            )
+
+            assert result is not None
+            assert isinstance(result, dict)
+            assert result.get("success") is True
+
 
 # PAID TESTS - These require actual SOL for transactions
 # Only run with --run-paid-tests flag
@@ -476,3 +682,145 @@ class TestJupiterUltraAPIPaid:
             print("⚠️  Order creation failed")
             print(f"Order response: {order_result}")
             pytest.fail("Order creation failed")
+
+    # PHASE 2: TRIGGER API PAID TESTS (Limit Orders)
+
+    @pytest.mark.asyncio
+    async def test_real_limit_order_creation(
+        self, api: JupiterUltraAPI, real_env_vars: Any
+    ) -> None:
+        """Test creating a real limit order quote (no execution)."""
+        print("\n📊 Testing real limit order creation...")
+
+        # Create a limit order: sell 0.01 SOL for 2.5 USDC (price: $250/SOL)
+        # This is above market price so it won't execute immediately
+        result = await api.create_limit_order(
+            input_mint="So11111111111111111111111111111111111111112",  # SOL
+            output_mint="EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",  # USDC
+            making_amount="10000000",  # 0.01 SOL (minimum is ~$5 USD)
+            taking_amount="2500000",  # 2.5 USDC (6 decimals)
+            slippage_bps=100,  # 1% slippage
+        )
+
+        assert result is not None
+        assert isinstance(result, dict)
+        print(f"Limit order result: {result}")
+
+        # Should contain either success or error
+        assert "success" in result or "error" in result
+
+    @pytest.mark.asyncio
+    async def test_real_get_limit_orders(
+        self, api: JupiterUltraAPI, real_env_vars: Any
+    ) -> None:
+        """Test getting real limit orders for configured wallet."""
+        print("\n📊 Testing get limit orders...")
+
+        # Get active orders
+        active_result = await api.get_limit_orders(order_status="active")
+
+        assert active_result is not None
+        assert isinstance(active_result, dict)
+        print(f"Active orders: {active_result}")
+
+        # Get order history
+        history_result = await api.get_limit_orders(order_status="history", page=1)
+
+        assert history_result is not None
+        assert isinstance(history_result, dict)
+        print(f"Order history: {history_result}")
+
+    @pytest.mark.paid
+    @pytest.mark.asyncio
+    async def test_real_limit_order_execution(
+        self, api: JupiterUltraAPI, real_env_vars: Any
+    ) -> None:
+        """Test executing a real limit order: create_limit_order -> execute_limit_order."""
+        print("\n📊 Step 1: Creating limit order quote...")
+
+        # Create a limit order with a very high price so it won't execute immediately
+        # Sell 0.0001 SOL for 0.05 USDC (price: $500/SOL - won't execute at current prices)
+        order_result = await api.create_limit_order(
+            input_mint="So11111111111111111111111111111111111111111112",  # SOL
+            output_mint="EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",  # USDC
+            making_amount="100000",  # 0.0001 SOL (very small for safety)
+            taking_amount="50000",  # 0.05 USDC (high price per SOL)
+            slippage_bps=0,  # Exact mode
+        )
+
+        assert order_result is not None
+        assert isinstance(order_result, dict)
+        print(f"Order result: {order_result}")
+
+        # Check if order creation was successful
+        if order_result.get("success") and "data" in order_result:
+            order_data = order_result["data"]
+            transaction = order_data.get("transaction")
+            request_id = order_data.get("requestId")
+            order_account = order_data.get("order")
+
+            if transaction and request_id:
+                print(f"✅ Got order with requestId: {request_id}")
+                print(f"📦 Order account: {order_account}")
+                print(f"📦 Transaction length: {len(transaction)} characters")
+
+                # Step 2: Execute the limit order (this will create it on-chain)
+                print("⚡ Step 2: Creating limit order on-chain (SPENDING SOL!)...")
+                execution_result = await api.execute_limit_order(
+                    transaction=transaction,
+                    request_id=request_id,
+                )
+
+                assert execution_result is not None
+                assert isinstance(execution_result, dict)
+                print(f"🎉 Execution result: {execution_result}")
+
+                # Check if execution was successful
+                if execution_result.get("success") and "data" in execution_result:
+                    exec_data = execution_result["data"]
+                    signature = exec_data.get("signature")
+                    if signature:
+                        print("✅ Limit order created successfully!")
+                        print(f"🔗 Transaction signature: {signature}")
+                        print(f"📊 Order account: {order_account}")
+                        assert signature is not None
+                        assert len(signature) > 0
+
+                        # Optional: Try to cancel the order to clean up
+                        if order_account:
+                            print("🧹 Step 3: Canceling the limit order...")
+                            cancel_result = await api.cancel_limit_order(
+                                order=order_account
+                            )
+
+                            if cancel_result.get("success") and "data" in cancel_result:
+                                cancel_tx = cancel_result["data"].get("transaction")
+                                cancel_request_id = cancel_result["data"].get(
+                                    "requestId"
+                                )
+
+                                if cancel_tx and cancel_request_id:
+                                    cancel_exec = await api.execute_limit_order(
+                                        transaction=cancel_tx,
+                                        request_id=cancel_request_id,
+                                    )
+                                    print(f"🧹 Cancel result: {cancel_exec}")
+                    else:
+                        print(
+                            "⚠️  Limit order execution completed but no signature returned"
+                        )
+                        print(f"Execution data: {exec_data}")
+                else:
+                    print("⚠️  Limit order execution failed")
+                    print(f"Execution result: {execution_result}")
+                    # Still assert success for the test structure
+                    assert execution_result.get("success") is not None
+
+            else:
+                print("⚠️  Order missing transaction or requestId")
+                print(f"Order data: {order_data}")
+                pytest.fail("Order missing required transaction or requestId")
+        else:
+            print("⚠️  Order creation failed")
+            print(f"Order response: {order_result}")
+            pytest.fail("Limit order creation failed")

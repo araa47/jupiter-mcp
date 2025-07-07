@@ -8,7 +8,7 @@ A Python client for interacting with the Jupiter Ultra API.
 import asyncio
 import base64
 import os
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 import aiohttp
 from dotenv import load_dotenv
@@ -34,6 +34,7 @@ class JupiterUltraAPI:
         self.network = os.getenv("SOLANA_NETWORK", "devnet")
         self.request_timeout = int(os.getenv("REQUEST_TIMEOUT", "30"))
         self.base_url = "https://lite-api.jup.ag/ultra/v1"
+        self.trigger_base_url = "https://lite-api.jup.ag/trigger/v1"
 
         # Initialize clients
         self._solana_client: Optional[AsyncClient] = None
@@ -458,3 +459,406 @@ class JupiterUltraAPI:
 
         except Exception as e:
             raise Exception(f"Failed to sign transaction: {str(e)}") from e
+
+    # Phase 2: Trigger API methods for limit orders
+
+    async def create_limit_order(
+        self,
+        input_mint: str,
+        output_mint: str,
+        making_amount: str,
+        taking_amount: str,
+        slippage_bps: Optional[int] = 0,
+        expired_at: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        """
+        Create a limit order that executes when target price is reached.
+
+        This function is FREE to call and does not execute any transactions.
+        It returns an unsigned transaction that must be signed and executed.
+
+        Args:
+            input_mint: Input token mint address (token to sell)
+            output_mint: Output token mint address (token to buy)
+            making_amount: Amount of input token to sell in smallest unit
+            taking_amount: Amount of output token to receive in smallest unit (sets the price)
+            slippage_bps: Slippage in basis points (0 for "Exact" mode, >0 for "Ultra" mode)
+            expired_at: Unix timestamp when order expires (optional)
+
+        Returns:
+            Dictionary containing:
+            - success: Boolean indicating if the request was successful
+            - data: Contains 'order' (account address), 'transaction' (unsigned), and 'requestId'
+            - error: Error message if request failed
+
+        Note:
+            - Minimum order size is $5 USD
+            - This creates but doesn't execute the order
+            - Uses configured wallet as maker/payer
+            - Includes automatic referral (2.55%)
+
+        Example:
+            >>> # Create limit order: sell 0.01 SOL for 2.5 USDC (price: $250/SOL)
+            >>> result = await api.create_limit_order(
+            ...     input_mint="So11111111111111111111111111111111111111112",  # SOL
+            ...     output_mint="EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",  # USDC
+            ...     making_amount="10000000",  # 0.01 SOL
+            ...     taking_amount="2500000",   # 2.5 USDC (6 decimals)
+            ...     slippage_bps=100          # 1% slippage
+            ... )
+        """
+        try:
+            # Validate inputs
+            if not input_mint or not input_mint.strip():
+                return {"success": False, "error": "input_mint cannot be empty"}
+            if not output_mint or not output_mint.strip():
+                return {"success": False, "error": "output_mint cannot be empty"}
+            if not making_amount or not making_amount.strip():
+                return {"success": False, "error": "making_amount cannot be empty"}
+            if not taking_amount or not taking_amount.strip():
+                return {"success": False, "error": "taking_amount cannot be empty"}
+
+            # Validate amounts are numeric and positive
+            try:
+                making_num = int(making_amount)
+                taking_num = int(taking_amount)
+                if making_num <= 0 or taking_num <= 0:
+                    return {
+                        "success": False,
+                        "error": "amounts must be positive numbers",
+                    }
+            except ValueError:
+                return {"success": False, "error": "amounts must be valid numbers"}
+
+            # Get wallet as maker
+            keypair = self.get_keypair()
+            maker = str(keypair.pubkey())
+
+            # Build request payload
+            payload = {
+                "inputMint": input_mint,
+                "outputMint": output_mint,
+                "makingAmount": making_amount,
+                "takingAmount": taking_amount,
+                "maker": maker,
+                "payer": maker,
+                "slippageBps": slippage_bps,
+                "referralAccount": DEV_REFERRER_WALLET,
+                "referralFee": "255",  # 255 basis points (2.55%)
+                "computeUnitPrice": "auto",
+            }
+
+            # Add optional expiry
+            if expired_at is not None:
+                payload["expiredAt"] = expired_at
+
+            # Make the API request
+            url = f"{self.trigger_base_url}/createOrder"
+            response = await self.make_http_request("POST", url, json_data=payload)
+
+            return {"success": True, "data": response}
+
+        except Exception as e:
+            return {
+                "success": False,
+                "error": f"Failed to create limit order: {str(e)}",
+            }
+
+    async def execute_limit_order(
+        self, transaction: str, request_id: str
+    ) -> Dict[str, Any]:
+        """
+        🚨 WARNING: THIS WILL CREATE A REAL LIMIT ORDER ON-CHAIN! 🚨
+
+        Sign and execute a limit order transaction.
+
+        This is a PAID operation that creates a limit order on the Solana blockchain.
+        The order will execute automatically when market conditions are met.
+
+        Args:
+            transaction: Base64 encoded unsigned transaction from create_limit_order
+            request_id: Request ID from create_limit_order response
+
+        Returns:
+            Dictionary containing:
+            - success: Boolean indicating if the execution was successful
+            - data: Contains 'signature' and status if successful
+            - error: Error message if execution failed
+
+        Note:
+            - This creates a limit order that may execute later
+            - Orders have fees: 0.03% (stable pairs) or 0.1% (other pairs)
+            - Plus automatic referral fees (2.55%)
+            - Minimum order size is $5 USD
+
+        Example:
+            >>> # First create the order
+            >>> order = await api.create_limit_order(...)
+            >>> if order["success"]:
+            ...     # Then execute it
+            ...     result = await api.execute_limit_order(
+            ...         transaction=order["data"]["transaction"],
+            ...         request_id=order["data"]["requestId"]
+            ...     )
+            ...     if result["success"]:
+            ...         print(f"Limit order created! Signature: {result['data']['signature']}")
+        """
+        try:
+            # Validate inputs
+            if not transaction or not transaction.strip():
+                raise ValueError("Transaction cannot be empty")
+            if not request_id or not request_id.strip():
+                raise ValueError("Request ID cannot be empty")
+
+            print("🚨 WARNING: About to create a REAL limit order on-chain!")
+            print(
+                "🚨 This order will execute automatically when price conditions are met!"
+            )
+
+            # Step 1: Sign the transaction
+            print("🔐 Signing transaction with your private key...")
+            try:
+                signed_transaction = self.sign_transaction(transaction)
+                print("✅ Transaction signed successfully")
+            except Exception as sign_error:
+                print(f"❌ Transaction signing failed: {str(sign_error)}")
+                return {
+                    "success": False,
+                    "error": f"Failed to sign transaction: {str(sign_error)}",
+                }
+
+            # Step 2: Execute the signed transaction
+            print("⚡ Creating limit order on Solana blockchain...")
+            payload = {"signedTransaction": signed_transaction, "requestId": request_id}
+
+            # Make the API request
+            url = f"{self.trigger_base_url}/execute"
+            response = await self.make_http_request("POST", url, json_data=payload)
+
+            print(f"🎉 Limit order created! Response: {response}")
+            return {"success": True, "data": response}
+
+        except Exception as e:
+            print(f"❌ Limit order creation failed: {str(e)}")
+            return {"success": False, "error": str(e)}
+
+    async def cancel_limit_order(self, order: str) -> Dict[str, Any]:
+        """
+        Cancel a single active limit order.
+
+        This function is FREE to call and does not execute any transactions.
+        It returns an unsigned transaction that must be signed and executed.
+
+        Args:
+            order: Order account address to cancel
+
+        Returns:
+            Dictionary containing:
+            - success: Boolean indicating if the request was successful
+            - data: Contains 'transaction' (unsigned) and 'requestId'
+            - error: Error message if request failed
+
+        Note:
+            - Returns unsigned transaction that needs to be executed
+            - Uses configured wallet as maker
+
+        Example:
+            >>> # Cancel a specific order
+            >>> result = await api.cancel_limit_order(
+            ...     order="your_order_account_address_here"
+            ... )
+            >>> if result["success"]:
+            ...     # Execute the cancellation
+            ...     exec_result = await api.execute_limit_order(
+            ...         transaction=result["data"]["transaction"],
+            ...         request_id=result["data"]["requestId"]
+            ...     )
+        """
+        try:
+            # Validate inputs
+            if not order or not order.strip():
+                return {"success": False, "error": "order address cannot be empty"}
+
+            # Get wallet as maker
+            keypair = self.get_keypair()
+            maker = str(keypair.pubkey())
+
+            # Build request payload
+            payload = {
+                "order": order,
+                "maker": maker,
+                "computeUnitPrice": "auto",
+            }
+
+            # Make the API request
+            url = f"{self.trigger_base_url}/cancelOrder"
+            response = await self.make_http_request("POST", url, json_data=payload)
+
+            return {"success": True, "data": response}
+
+        except Exception as e:
+            return {"success": False, "error": f"Failed to cancel order: {str(e)}"}
+
+    async def cancel_limit_orders(
+        self, orders: Optional[List[str]] = None
+    ) -> Dict[str, Any]:
+        """
+        Cancel multiple limit orders (batched in groups of 5).
+
+        This function is FREE to call and does not execute any transactions.
+        It returns unsigned transactions that must be signed and executed.
+
+        Args:
+            orders: Array of order account addresses. If None/empty, cancels ALL orders
+
+        Returns:
+            Dictionary containing:
+            - success: Boolean indicating if the request was successful
+            - data: Contains 'transactions' (array of unsigned) and 'requestId'
+            - error: Error message if request failed
+
+        Note:
+            - Returns multiple transactions if >5 orders
+            - Each transaction needs to be signed and executed separately
+            - Uses configured wallet as maker
+
+        Example:
+            >>> # Cancel specific orders
+            >>> result = await api.cancel_limit_orders(
+            ...     orders=["order1_address", "order2_address", "order3_address"]
+            ... )
+            >>>
+            >>> # Cancel ALL orders
+            >>> result = await api.cancel_limit_orders()
+            >>> if result["success"]:
+            ...     # Execute each cancellation transaction
+            ...     for tx in result["data"]["transactions"]:
+            ...         exec_result = await api.execute_limit_order(
+            ...             transaction=tx,
+            ...             request_id=result["data"]["requestId"]
+            ...         )
+        """
+        try:
+            # Get wallet as maker
+            keypair = self.get_keypair()
+            maker = str(keypair.pubkey())
+
+            # Build request payload
+            payload: Dict[str, Any] = {
+                "maker": maker,
+                "computeUnitPrice": "auto",
+            }
+
+            # Add orders if provided
+            if orders is not None and len(orders) > 0:
+                # Validate each order address
+                for order in orders:
+                    if not order or not order.strip():
+                        return {
+                            "success": False,
+                            "error": "order addresses cannot be empty",
+                        }
+                payload["orders"] = orders
+
+            # Make the API request
+            url = f"{self.trigger_base_url}/cancelOrders"
+            response = await self.make_http_request("POST", url, json_data=payload)
+
+            return {"success": True, "data": response}
+
+        except Exception as e:
+            return {"success": False, "error": f"Failed to cancel orders: {str(e)}"}
+
+    async def get_limit_orders(
+        self,
+        order_status: str = "active",
+        wallet_address: Optional[str] = None,
+        input_mint: Optional[str] = None,
+        output_mint: Optional[str] = None,
+        page: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        """
+        Get active or historical limit orders for a wallet.
+
+        This function is FREE to call and does not execute any transactions.
+
+        Args:
+            order_status: "active" or "history" (default: "active")
+            wallet_address: Wallet to check (optional, defaults to configured wallet)
+            input_mint: Filter by input token (optional)
+            output_mint: Filter by output token (optional)
+            page: Page number for pagination, 10 orders per page (optional)
+
+        Returns:
+            Dictionary containing:
+            - success: Boolean indicating if the request was successful
+            - wallet_address: The wallet address that was queried
+            - data: Array of order objects with details
+            - hasMoreData: Boolean indicating if there are more pages
+            - error: Error message if request failed
+
+        Example:
+            >>> # Get active orders for configured wallet
+            >>> result = await api.get_limit_orders(order_status="active")
+            >>> if result["success"]:
+            ...     for order in result["data"]:
+            ...         print(f"Order {order['orderAccount']}: {order['makingAmount']} → {order['takingAmount']}")
+            >>>
+            >>> # Get order history with pagination
+            >>> result = await api.get_limit_orders(order_status="history", page=1)
+        """
+        try:
+            # Validate order_status
+            if order_status not in ["active", "history"]:
+                return {
+                    "success": False,
+                    "error": "order_status must be 'active' or 'history'",
+                }
+
+            # Use configured wallet if address not provided
+            if wallet_address is None:
+                keypair = self.get_keypair()
+                wallet_address = str(keypair.pubkey())
+
+            # Validate wallet address
+            if not wallet_address or not wallet_address.strip():
+                return {"success": False, "error": "wallet_address cannot be empty"}
+
+            # Build query parameters
+            params = {
+                "orderStatus": order_status,
+                "wallet": wallet_address,
+            }
+
+            # Add optional filters
+            if input_mint:
+                params["inputMint"] = input_mint
+            if output_mint:
+                params["outputMint"] = output_mint
+            if page is not None:
+                params["page"] = str(page)
+
+            # Make the API request
+            url = f"{self.trigger_base_url}/getTriggerOrders"
+            response = await self.make_http_request("GET", url, params=params)
+
+            # Extract hasMoreData flag if present
+            has_more_data = response.get("hasMoreData", False)
+
+            # Handle response format
+            if "orders" in response:
+                data = response["orders"]
+            elif isinstance(response, list):
+                data = response
+            else:
+                data = response
+
+            return {
+                "success": True,
+                "wallet_address": wallet_address,
+                "data": data,
+                "hasMoreData": has_more_data,
+            }
+
+        except Exception as e:
+            return {"success": False, "error": f"Failed to get limit orders: {str(e)}"}

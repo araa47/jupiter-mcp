@@ -1,10 +1,11 @@
 # Jupiter Ultra MCP Server
 
-A Python MCP (Model Context Protocol) server for the [Jupiter Ultra API](https://dev.jup.ag/docs/ultra-api/) - Solana's premier DEX aggregator.
+A Python MCP (Model Context Protocol) server for the [Jupiter Ultra API](https://dev.jup.ag/docs/ultra-api/) and [Trigger API](https://dev.jup.ag/docs/trigger-api/) - Solana's premier DEX aggregator.
 
 ## 🚀 Features
 
-- **Jupiter Ultra API Integration**: Access all Jupiter Ultra endpoints
+- **Jupiter Ultra API Integration**: Execute immediate swaps on Solana
+- **Jupiter Trigger API Integration**: Create and manage limit orders
 - **Secure Wallet Management**: Uses your Solana private key for transactions
 - **Built-in Referral System**: Automatically includes referral fees for development support
 - **Comprehensive Testing**: Safe testing with mock and real trade execution
@@ -126,7 +127,9 @@ This approach uses `envmcp` to securely load your PRIVATE_KEY from a `.env` file
 - `PRIVATE_KEY`: Your base58 encoded Solana private key (from Phantom wallet export)
 - Optional: Override `SOLANA_RPC_URL` if you have a custom RPC endpoint
 
-## 🛠️ Available Tools
+## 🎉 Available Tools
+
+### 💱 Ultra API (Immediate Swaps)
 
 | Tool | Description | Parameters | Cost |
 |------|-------------|------------|------|
@@ -136,6 +139,91 @@ This approach uses `envmcp` to securely load your PRIVATE_KEY from a `.env` file
 | `get_shield` | Get token security information | `mints` | **FREE** |
 | `search_token` | Search for tokens | `query` | **FREE** |
 
+### 📊 Trigger API (Limit Orders)
+
+| Tool | Description | Parameters | Cost |
+|------|-------------|------------|------|
+| `create_limit_order` | Create a limit order transaction | `input_mint`, `output_mint`, `making_amount`, `taking_amount`, `slippage_bps?`, `expired_at?` | **FREE** |
+| `execute_limit_order` | Execute a limit order transaction | `transaction`, `request_id` | **PAID** |
+| `cancel_limit_order` | Cancel a single limit order | `order` | **FREE** |
+| `cancel_limit_orders` | Cancel multiple limit orders | `orders?` | **FREE** |
+| `get_limit_orders` | Get active/historical limit orders | `order_status`, `wallet_address?`, `input_mint?`, `output_mint?`, `page?` | **FREE** |
+
+### Key Differences: Swaps vs Limit Orders
+
+- **Swaps** (Ultra API): Execute immediately at current market price
+- **Limit Orders** (Trigger API): Execute automatically when your target price is reached
+
+## 📝 Examples
+
+### Immediate Swap Example
+```python
+# Get a quote to swap 0.001 SOL to USDC
+quote = await get_swap_quote(
+    input_mint="So11111111111111111111111111111111111111112",  # SOL
+    output_mint="EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",  # USDC
+    amount="1000000"  # 0.001 SOL (9 decimals)
+)
+
+# Execute the swap
+if quote["success"]:
+    result = await execute_swap_transaction(
+        transaction=quote["data"]["transaction"],
+        request_id=quote["data"]["requestId"]
+    )
+```
+
+### Limit Order Example
+```python
+# Create a limit order: sell 0.01 SOL when price reaches $250
+order = await create_limit_order(
+    input_mint="So11111111111111111111111111111111111111112",  # SOL
+    output_mint="EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",  # USDC
+    making_amount="10000000",  # 0.01 SOL to sell
+    taking_amount="2500000",   # 2.5 USDC to receive (implies $250/SOL)
+    slippage_bps=100          # 1% slippage tolerance
+)
+
+# Execute the limit order (creates it on-chain)
+if order["success"]:
+    result = await execute_limit_order(
+        transaction=order["data"]["transaction"],
+        request_id=order["data"]["requestId"]
+    )
+
+# Check your active orders
+active_orders = await get_limit_orders(order_status="active")
+
+# Cancel an order if needed
+if active_orders["success"] and active_orders["data"]:
+    cancel = await cancel_limit_order(order=active_orders["data"][0]["orderAccount"])
+    if cancel["success"]:
+        await execute_limit_order(
+            transaction=cancel["data"]["transaction"],
+            request_id=cancel["data"]["requestId"]
+        )
+```
+
+## ⚠️ Important Notes
+
+### Limit Orders
+- **Minimum Order Size**: $5 USD
+- **Order Fees**:
+  - Stable pairs: 0.03%
+  - Other pairs: 0.1%
+  - Plus automatic referral fee: 2.55%
+- **Order Execution**: Orders execute automatically when market conditions are met
+- **Expiry**: Orders can have optional expiry timestamps
+- **Slippage Modes**:
+  - Exact mode (`slippage_bps=0`): Order executes only at exact price
+  - Ultra mode (`slippage_bps>0`): Higher success rate with slippage tolerance
+
+### Safety Tips
+1. **Test with small amounts first** (0.0001 SOL)
+2. **Check token security** with `get_shield` before trading unknown tokens
+3. **Monitor your orders** with `get_limit_orders`
+4. **Set reasonable prices** for limit orders to avoid immediate execution
+5. **Use expiry timestamps** to auto-cancel old orders
 
 ## 🔧 Alternative Installation (Development)
 
