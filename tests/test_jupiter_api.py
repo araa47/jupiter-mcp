@@ -573,6 +573,137 @@ class TestJupiterAPI:
             assert isinstance(result, dict)
             assert result.get("success") is True
 
+    @pytest.mark.asyncio
+    async def test_cancel_limit_orders_all_orders(
+        self, api: JupiterAPI, mock_env_vars: Any
+    ) -> None:
+        """Test cancel_limit_orders without specifying orders (cancels ALL)."""
+        with (
+            patch.object(api, "make_http_request") as mock_request,
+            patch.object(api, "get_keypair") as mock_keypair,
+        ):
+            mock_request.return_value = {
+                "transactions": ["mock-cancel-all-tx-1", "mock-cancel-all-tx-2"],
+                "requestId": "mock-cancel-all-request-id",
+            }
+            # Mock keypair to return a test wallet address
+            mock_keypair.return_value.pubkey.return_value = "test_wallet_address"
+
+            # Call without orders parameter to cancel ALL orders
+            result = await api.cancel_limit_orders()
+
+            assert result is not None
+            assert isinstance(result, dict)
+            assert result.get("success") is True
+            assert "data" in result
+            assert len(result["data"]["transactions"]) == 2
+
+    @pytest.mark.asyncio
+    async def test_get_limit_orders_with_filters(
+        self, api: JupiterAPI, mock_env_vars: Any
+    ) -> None:
+        """Test get_limit_orders with input_mint and output_mint filters."""
+        with (
+            patch.object(api, "make_http_request") as mock_request,
+            patch.object(api, "get_keypair") as mock_keypair,
+        ):
+            mock_request.return_value = {
+                "orders": [
+                    {
+                        "orderAccount": "filtered-order-1",
+                        "inputMint": "So11111111111111111111111111111111111111112",
+                        "outputMint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+                        "makingAmount": "5000000",
+                        "takingAmount": "1250000",
+                        "status": "active",
+                    }
+                ],
+                "hasMoreData": False,
+            }
+            # Mock keypair to return a test wallet address
+            mock_keypair.return_value.pubkey.return_value = "test_wallet_address"
+
+            result = await api.get_limit_orders(
+                order_status="active",
+                input_mint="So11111111111111111111111111111111111111112",
+                output_mint="EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+            )
+
+            assert result is not None
+            assert isinstance(result, dict)
+            assert result.get("success") is True
+            assert "data" in result
+            assert len(result["data"]) == 1
+            assert result["data"][0]["orderAccount"] == "filtered-order-1"
+
+    @pytest.mark.asyncio
+    async def test_get_limit_orders_with_pagination(
+        self, api: JupiterAPI, mock_env_vars: Any
+    ) -> None:
+        """Test get_limit_orders with pagination."""
+        with (
+            patch.object(api, "make_http_request") as mock_request,
+            patch.object(api, "get_keypair") as mock_keypair,
+        ):
+            # Mock response for page 2
+            mock_request.return_value = {
+                "orders": [
+                    {
+                        "orderAccount": f"order-page2-{i}",
+                        "makingAmount": "1000000",
+                        "takingAmount": "250000",
+                        "status": "history",
+                    }
+                    for i in range(10)  # 10 orders per page
+                ],
+                "hasMoreData": True,  # More pages available
+            }
+            # Mock keypair to return a test wallet address
+            mock_keypair.return_value.pubkey.return_value = "test_wallet_address"
+
+            result = await api.get_limit_orders(order_status="history", page=2)
+
+            assert result is not None
+            assert isinstance(result, dict)
+            assert result.get("success") is True
+            assert "data" in result
+            assert len(result["data"]) == 10
+            assert result["hasMoreData"] is True
+            assert result["data"][0]["orderAccount"] == "order-page2-0"
+
+    @pytest.mark.asyncio
+    async def test_get_limit_orders_with_custom_wallet(
+        self, api: JupiterAPI, mock_env_vars: Any
+    ) -> None:
+        """Test get_limit_orders with a custom wallet address."""
+        with patch.object(api, "make_http_request") as mock_request:
+            mock_request.return_value = {
+                "orders": [
+                    {
+                        "orderAccount": "custom-wallet-order",
+                        "userPubkey": "CustomWalletAddressHere",
+                        "makingAmount": "2000000",
+                        "takingAmount": "500000",
+                        "status": "active",
+                    }
+                ],
+                "hasMoreData": False,
+            }
+
+            # Use custom wallet address (no need to mock get_keypair)
+            custom_wallet = "CustomWalletAddressHere"
+            result = await api.get_limit_orders(
+                order_status="active", wallet_address=custom_wallet
+            )
+
+            assert result is not None
+            assert isinstance(result, dict)
+            assert result.get("success") is True
+            assert result["wallet_address"] == custom_wallet
+            assert "data" in result
+            assert len(result["data"]) == 1
+            assert result["data"][0]["userPubkey"] == custom_wallet
+
 
 # PAID TESTS - These require actual SOL for transactions
 # Only run with --run-paid-tests flag
