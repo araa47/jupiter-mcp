@@ -22,10 +22,15 @@ Once uv is installed, restart your shell before proceeding.
 
 ### Option 1: Using .env File (Recommended - More Secure)
 
-[1Click Cursor](cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-ultra-mcp-env&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyJlbnZtY3AiLCItLWVudi1maWxlIiwifi8uZW52IiwidXZ4IiwiLS1mcm9tIiwiZ2l0K2h0dHBzOi8vZ2l0aHViLmNvbS9hcmFhNDcvanVwaXRlci11bHRyYS1tY3AiLCJqdXBpdGVyLXVsdHJhLW1jcCJdfQ==)
+**🚀 [Install with .env File →](cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-ultra-mcp-env&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyJlbnZtY3AiLCItLWVudi1maWxlIiwifi8uZW52IiwidXZ4IiwiLS1mcm9tIiwiZ2l0K2h0dHBzOi8vZ2l0aHViLmNvbS9hcmFhNDcvanVwaXRlci11bHRyYS1tY3AiLCJqdXBpdGVyLXVsdHJhLW1jcCJdfQ==)**
 
+**Note:** This link only works in the Cursor app. If viewing on web, copy the link below:
 
-**Click the button above to install.** After installation, you'll need to update the env file path:
+```
+cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-ultra-mcp-env&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyJlbnZtY3AiLCItLWVudi1maWxlIiwifi8uZW52IiwidXZ4IiwiLS1mcm9tIiwiZ2l0K2h0dHBzOi8vZ2l0aHViLmNvbS9hcmFhNDcvanVwaXRlci11bHRyYS1tY3AiLCJqdXBpdGVyLXVsdHJhLW1jcCJdfQ==
+```
+
+After installation, you'll need to update the env file path:
 
 1. **Create your `.env` file** at your preferred location (e.g., `~/.env`):
 ```bash
@@ -43,23 +48,19 @@ REQUEST_TIMEOUT=30
    - Replace `~/.env` with your actual env file path (e.g., `/Users/yourname/.env`)
    - Click **Save**
 
-Or copy this link:
-```
-cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-ultra-mcp-env&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyJlbnZtY3AiLCItLWVudi1maWxlIiwifi8uZW52IiwidXZ4IiwiLS1mcm9tIiwiZ2l0K2h0dHBzOi8vZ2l0aHViLmNvbS9hcmFhNDcvanVwaXRlci11bHRyYS1tY3AiLCJqdXBpdGVyLXVsdHJhLW1jcCJdfQ==
-```
-
 ### Option 2: With Cursor Input Prompts (Less Secure)
 
 If you prefer to configure directly through Cursor prompts:
 
-[1Click Cursor](cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-ultra-mcp&config=eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyItLWZyb20iLCJnaXQraHR0cHM6Ly9naXRodWIuY29tL2FyYWE0Ny9qdXBpdGVyLXVsdHJhLW1jcCIsImp1cGl0ZXItdWx0cmEtbWNwIl0sImVudiI6eyJQUklWQVRFX0tFWSI6IlJFUExBQ0VfVEhJUyIsIlNPTEFOQV9SUENfVVJMIjoiaHR0cHM6Ly9hcGkubWFpbm5ldC1iZXRhLnNvbGFuYS5jb20iLCJTT0xBTkFfTkVUV09SSyI6Im1haW5uZXQtYmV0YSIsIlJFUVVFU1RfVElNRU9VVCI6IjMwIn19)
+**🚀 [Install with Direct Input →](cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-ultra-mcp&config=eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyItLWZyb20iLCJnaXQraHR0cHM6Ly9naXRodWIuY29tL2FyYWE0Ny9qdXBpdGVyLXVsdHJhLW1jcCIsImp1cGl0ZXItdWx0cmEtbWNwIl0sImVudiI6eyJQUklWQVRFX0tFWSI6IlJFUExBQ0VfVEhJUyIsIlNPTEFOQV9SUENfVVJMIjoiaHR0cHM6Ly9hcGkubWFpbm5ldC1iZXRhLnNvbGFuYS5jb20iLCJTT0xBTkFfTkVUV09SSyI6Im1haW5uZXQtYmV0YSIsIlJFUVVFU1RfVElNRU9VVCI6IjMwIn19)**
 
-**Click the button above to install.** You'll be prompted to replace `REPLACE_THIS` with your actual private key.
+**Note:** This link only works in the Cursor app. If viewing on web, copy the link below:
 
-Or copy this link:
 ```
 cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-ultra-mcp&config=eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyItLWZyb20iLCJnaXQraHR0cHM6Ly9naXRodWIuY29tL2FyYWE0Ny9qdXBpdGVyLXVsdHJhLW1jcCIsImp1cGl0ZXItdWx0cmEtbWNwIl0sImVudiI6eyJQUklWQVRFX0tFWSI6IlJFUExBQ0VfVEhJUyIsIlNPTEFOQV9SUENfVVJMIjoiaHR0cHM6Ly9hcGkubWFpbm5ldC1iZXRhLnNvbGFuYS5jb20iLCJTT0xBTkFfTkVUV09SSyI6Im1haW5uZXQtYmV0YSIsIlJFUVVFU1RfVElNRU9VVCI6IjMwIn19
 ```
+
+You'll be prompted to replace `REPLACE_THIS` with your actual private key.
 
 **Pre-configured values:**
 - `SOLANA_RPC_URL`: https://api.mainnet-beta.solana.com
