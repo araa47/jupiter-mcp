@@ -12,11 +12,13 @@ A Python MCP (Model Context Protocol) server for the [Jupiter Ultra API](https:/
 
 ## ⚡ Quick Start (MCP Configuration)
 
-You need [uv](https://docs.astral.sh/uv/getting-started/installation/) installed on your system. 
+You need:
+- [uv](https://docs.astral.sh/uv/getting-started/installation/) -> Python dependency manager
+- [npx](https://docs.npmjs.com/cli/v10/commands/npx) (comes with Node.js) -> Used to run Node packages without installing them globally (temporarily used since cursor doesn't support )
 
 Once uv is installed, restart your shell and add this to your MCP client configuration:
 
-
+Cursor
 ```json
 {
   "mcpServers": {
@@ -37,6 +39,33 @@ Once uv is installed, restart your shell and add this to your MCP client configu
   }
 }
 ```
+
+### Alternative Configuration (Using .env file)
+
+If you prefer to load environment variables from a `.env` file to avoid storing sensitive data in your MCP configuration:
+
+```json
+{
+  "mcpServers": {
+    "jupiter-ultra-mcp": {
+      "command": "npx",
+      "args": [
+        "envmcp",
+        "--env-file",
+        ".env",
+        "uvx",
+        "--from",
+        "git+https://github.com/araa47/jupiter-ultra-mcp",
+        "jupiter-ultra-mcp",
+        "$SOLANA_RPC_URL",
+        "$PRIVATE_KEY"
+      ]
+    }
+  }
+}
+```
+
+This approach uses `envmcp` to securely load your PRIVATE_KEY from a `.env` file without exposing it in configuration files.
 
 ### Environment Variables Required:
 - `PRIVATE_KEY`: Your base58 encoded Solana private key (from Phantom wallet export)

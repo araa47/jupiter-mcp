@@ -9,6 +9,20 @@
             "args": [
                 "@playwright/mcp@latest"
             ]
+        },
+        "jupiter-ultra-mcp": {
+            "command": "npx",
+            "args": [
+              "envmcp",
+              "--env-file",
+              ".env",
+              "uvx",
+              "--from",
+              "git+https://github.com/araa47/jupiter-ultra-mcp",
+              "jupiter-ultra-mcp",
+              "$SOLANA_RPC_URL",
+              "$PRIVATE_KEY"
+            ]
         }
     }
 }
