@@ -1,0 +1,107 @@
+{
+  "dxt_version": "0.1",
+  "name": "jupiter-mcp",
+  "display_name": "Jupiter MCP Server - Solana DEX Trading",
+  "version": "0.1.0",
+  "description": "Execute Solana trades and limit orders through Jupiter DEX aggregator",
+  "long_description": "A Model Context Protocol server for Jupiter API, Solana's premier DEX aggregator. Supports immediate swaps through Ultra API and limit orders through Trigger API. Features secure wallet management, built-in referral system, and comprehensive trading tools for Solana DeFi interactions.",
+  "author": {
+    "name": "Jupiter MCP",
+    "email": "support@jupiter-mcp.com",
+    "url": "https://github.com/araa47/jupiter-mcp"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/araa47/jupiter-mcp"
+  },
+  "homepage": "https://github.com/araa47/jupiter-mcp",
+  "documentation": "https://github.com/araa47/jupiter-mcp#readme",
+  "support": "https://github.com/araa47/jupiter-mcp/issues",
+  "icon": "icon.png",
+  "server": {
+    "type": "python",
+    "entry_point": "server/jupiter_wrapper.py",
+    "mcp_config": {
+      "command": "/usr/bin/python3",
+      "args": [
+        "${__dirname}/server/jupiter_wrapper.py"
+      ],
+      "env": {
+        "ENV_FILE_PATH": "${user_config.env_file_path}"
+      }
+    }
+  },
+  "tools": [
+    {
+      "name": "get_swap_quote",
+      "description": "Get a swap quote and unsigned transaction for immediate trading"
+    },
+    {
+      "name": "execute_swap_transaction",
+      "description": "Execute a signed swap transaction (PAID - spends SOL)"
+    },
+    {
+      "name": "get_balances",
+      "description": "Get token balances for a wallet address"
+    },
+    {
+      "name": "get_shield",
+      "description": "Get token security information and shield data"
+    },
+    {
+      "name": "search_token",
+      "description": "Search for tokens by name or symbol"
+    },
+    {
+      "name": "create_limit_order",
+      "description": "Create a limit order transaction for conditional trading"
+    },
+    {
+      "name": "execute_limit_order",
+      "description": "Execute a limit order transaction (PAID - spends SOL)"
+    },
+    {
+      "name": "cancel_limit_order",
+      "description": "Cancel a single limit order"
+    },
+    {
+      "name": "cancel_limit_orders",
+      "description": "Cancel multiple limit orders"
+    },
+    {
+      "name": "get_limit_orders",
+      "description": "Get active or historical limit orders"
+    }
+  ],
+  "keywords": [
+    "solana",
+    "jupiter",
+    "dex",
+    "trading",
+    "defi",
+    "swap",
+    "limit-orders",
+    "crypto",
+    "blockchain"
+  ],
+  "license": "MIT",
+  "user_config": {
+    "installation_check": {
+      "type": "boolean",
+      "title": "Installation Requirements Check",
+      "description": "Please ensure you have both 'npx' and 'uv' installed on your system before proceeding. npx comes with Node.js, and uv can be installed from https://docs.astral.sh/uv/getting-started/installation/",
+      "default": true,
+      "required": true
+    },
+    "env_file_path": {
+      "type": "file",
+      "title": "Environment File Path",
+      "description": "Path to your .env file. Create a file containing:\n\nSOLANA_RPC_URL=https://api.mainnet-beta.solana.com\nPRIVATE_KEY=your_base58_encoded_private_key_here\nSOLANA_NETWORK=mainnet-beta\nREQUEST_TIMEOUT=30\n\nExample path: /Users/yourname/.env",
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=0.10.0",
+    "platforms": ["darwin", "win32", "linux"]
+  }
+}
