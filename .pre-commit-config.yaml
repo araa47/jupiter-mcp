@@ -74,10 +74,10 @@ repos:
       hooks:
           - id: build-dxt
             name: Build Jupiter MCP DXT
-            description: Build the DXT extension file with git hash
-            entry: ./scripts/build-dxt.sh
-            language: script
+            description: Build the DXT extension file when dxt/ files change
+            entry: bash -c 'if ./scripts/build-dxt.sh; then git add jupiter-mcp-latest.dxt 2>/dev/null || true; fi'
+            language: system
             stages: [pre-commit]
             pass_filenames: false
-            always_run: false
             files: ^(dxt/|scripts/build-dxt\.sh)
+            verbose: true
