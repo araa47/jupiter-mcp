@@ -69,3 +69,15 @@ repos:
           - id: terraform_fmt
             args:
                 - recursive
+
+    - repo: local
+      hooks:
+          - id: build-dxt
+            name: Build Jupiter MCP DXT
+            description: Build the DXT extension file when dxt/ files change
+            entry: bash -c 'if ./scripts/build-dxt.sh; then git add jupiter-mcp-latest.dxt 2>/dev/null || true; fi'
+            language: system
+            stages: [pre-commit]
+            pass_filenames: false
+            files: ^(dxt/|scripts/build-dxt\.sh)
+            verbose: true
