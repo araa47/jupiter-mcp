@@ -28,8 +28,11 @@ share/python-wheels/
 MANIFEST
 .DS_Store
 
-# DXT extension files (auto-generated with git hash)
-jupiter-mcp-*.dxt
+# DXT extension files (auto-generated)
+*.dxt
+dxt/dxt.dxt
+# But allow the main distribution file
+!jupiter-mcp-latest.dxt
 
 # PyInstaller
 #  Usually these files are written by a python script from a template

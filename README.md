@@ -6,7 +6,7 @@ A Model Context Protocol server for Jupiter API, Solana's premier DEX aggregator
 
 For easy installation in Claude Desktop:
 
-**[Download Latest DXT](https://github.com/araa47/jupiter-mcp/releases/latest)** 📥
+**[Download jupiter-mcp-latest.dxt](https://github.com/araa47/jupiter-mcp/raw/main/jupiter-mcp-latest.dxt)** 📥
 
 The DXT includes:
 - ✅ One-click installation in Claude Desktop
@@ -14,7 +14,7 @@ The DXT includes:
 - ✅ Secure environment variable configuration
 - ✅ Built-in error handling and debugging
 
-> **Note**: DXT files are automatically built on every commit with git hash naming (e.g., `jupiter-mcp-c5d3188.dxt`) for version tracking.
+> **Note**: The DXT file is automatically updated on every commit for the latest features and fixes.
 
 ## 🚀 Quick Installation Options
 
@@ -166,17 +166,16 @@ This approach uses `envmcp` to securely load your PRIVATE_KEY from a `.env` file
 This project includes automated DXT building integrated with pre-commit hooks:
 
 - **Pre-commit Hook**: Automatically builds DXT files when changes are made to `dxt/` folder
-- **Git Hash Naming**: DXT files are named with git hash for unique versioning (e.g., `jupiter-mcp-c5d3188.dxt`)
-- **Auto-cleanup**: Keeps only the 3 most recent DXT files
-- **File Pattern**: `jupiter-mcp-*.dxt` files are gitignored (auto-generated)
+- **Simple Naming**: Always creates `jupiter-mcp-latest.dxt` for easy downloads
+- **Auto-update**: The latest DXT file is always current with the main branch
 
 ### Manual DXT Build
 
 ```bash
-# Build DXT with current git hash
+# Build DXT
 ./scripts/build-dxt.sh
 
-# Output: jupiter-mcp-<git-hash>.dxt
+# Output: jupiter-mcp-latest.dxt
 ```
 
 ### Pre-commit Setup

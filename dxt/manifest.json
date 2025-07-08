@@ -3,7 +3,7 @@
   "name": "jupiter-mcp",
   "display_name": "Jupiter MCP Server - Solana DEX Trading",
   "version": "0.1.0",
-  "description": "Execute Solana trades and limit orders through Jupiter DEX aggregator",
+  "description": "Execute Solana trades and limit orders through Jupiter DEX aggregator with automated git-hash builds",
   "long_description": "A Model Context Protocol server for Jupiter API, Solana's premier DEX aggregator. Supports immediate swaps through Ultra API and limit orders through Trigger API. Features secure wallet management, built-in referral system, and comprehensive trading tools for Solana DeFi interactions.",
   "author": {
     "name": "Jupiter MCP",
