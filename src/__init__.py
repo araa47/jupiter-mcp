@@ -5,6 +5,9 @@ This package provides MCP server tools for interacting with Jupiter's Ultra and 
 """
 
 from .jupiter_api import JupiterAPI
-from .server import api, mcp  # type: ignore
+from .server import setup_server  # type: ignore
 
-__all__ = ["JupiterAPI", "mcp", "api"]
+# For backward compatibility, create default instances
+mcp, api = setup_server(client_side_mode=False)
+
+__all__ = ["JupiterAPI", "mcp", "api", "setup_server"]

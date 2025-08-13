@@ -105,6 +105,69 @@ Add this to your MCP client configuration:
 }
 ```
 
+## 🔐 Client-Side Key Handling (Enhanced Security)
+
+Jupiter MCP supports **client-side mode** for enhanced security where private keys never leave your local environment:
+
+### 🚀 Quick Start - Client-Side Mode
+
+```bash
+# Start in secure client-side mode
+jupiter-mcp --client-side
+
+# Or with environment variable
+export CLIENT_SIDE_MODE=true
+jupiter-mcp
+```
+
+### 🔄 Client-Side Workflow
+
+In client-side mode, the typical workflow is:
+
+1. **Build Raw Transaction**: Get unsigned transaction data
+2. **Sign Locally**: Use your wallet/hardware device to sign
+3. **Submit**: Send the signed transaction to the blockchain
+
+```python
+# Example workflow (in client-side mode)
+# 1. Build unsigned transaction
+raw_tx = await api.build_raw_swap_tx(
+    input_mint="So11111111111111111111111111111111111111112",
+    output_mint="EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+    amount="1000000",
+    user_address="YourWalletAddress"
+)
+
+# 2. Sign with your wallet/hardware (external process)
+signed_tx = your_signing_function(raw_tx["data"]["transaction"])
+
+# 3. Submit signed transaction
+result = await api.submit_signed_transaction(
+    signed_transaction=signed_tx,
+    request_id=raw_tx["data"]["requestId"]
+)
+```
+
+### 🛡️ Security Benefits
+
+- **🔒 Private keys never leave your client**
+- **🔧 Compatible with hardware wallets**
+- **⚡ Perfect for production environments**
+- **🎯 Enhanced control over transaction signing**
+
+### 📋 Client-Side Mode Methods
+
+| Method | Purpose | Security |
+|--------|---------|----------|
+| `build_raw_swap_tx` | Create unsigned swap transactions | ✅ Safe |
+| `submit_signed_transaction` | Submit pre-signed transactions | ⚠️ Executes trades |
+| `create_limit_order` | Create unsigned limit orders | ✅ Safe |
+| `get_balances` | Check balances (requires wallet address) | ✅ Safe |
+
+**Disabled in client-side mode:**
+- `execute_swap_transaction` - Use `build_raw_swap_tx` + `submit_signed_transaction`
+- `execute_limit_order` - Use `create_limit_order` + `submit_signed_transaction`
+
 ### Alternative Configuration (Using .env file)
 
 If you prefer to load environment variables from a `.env` file to avoid storing sensitive data in your MCP configuration:
