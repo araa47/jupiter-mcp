@@ -21,23 +21,19 @@ The DXT includes:
 ### Option 1: Claude Desktop DXT (Recommended) 🖱️
 Download the DXT file and double-click to install. See `dxt/README.md` for detailed instructions.
 
-### Option 2: Quick Install with Cursor/Claude 🎯
+### Option 2: Quick Install with Cursor 🎯
 
 **Instructions:**
 1. Copy the link below (click the copy button in the code block)
 2. Paste it into your browser address bar or Cursor's command palette
 3. Follow the prompts to complete installation
 
-**🚀 Install with .env file:**
-```
-cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-mcp&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyJlbnZtY3AiLCItLWVudi1maWxlIiwiJHtFTlZfRklMRV9QQVRIX30iLCJ1dngiLCItLWZyb20iLCJnaXQraHR0cHM6Ly9naXRodWIuY29tL2FyYWE0Ny9qdXBpdGVyLW1jcCIsImp1cGl0ZXItbWNwIl0sImVudiI6eyJFTlZfRklMRV9QQVRIIjoiLmVudiJ9fQ==
-```
 
 **🚀 Install with Direct Input:**
 ```
 cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-mcp&config=eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyItLWZyb20iLCJnaXQraHR0cHM6Ly9naXRodWIuY29tL2FyYWE0Ny9qdXBpdGVyLW1jcCIsImp1cGl0ZXItbWNwIl0sImVudiI6eyJQUklWQVRFX0tFWSI6IlJFUExBQ0VfVEhJUyIsIlNPTEFOQV9SUENfVVJMIjoiaHR0cHM6Ly9hcGkubWFpbm5ldC1iZXRhLnNvbGFuYS5jb20iLCJTT0xBTkFfTkVUV09SSyI6Im1haW5uZXQtYmV0YSIsIlJFUVVFU1RfVElNRU9VVCI6IjMwIn19
 ```
-**Note:** These links only work in Cursor and other supported MCP clients.
+**Note:** These links only work in Cursor
 
 **Manual config for .env file approach:**
 
