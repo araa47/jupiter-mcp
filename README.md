@@ -23,6 +23,11 @@ Download the DXT file and double-click to install. See `dxt/README.md` for detai
 
 ### Option 2: Quick Install with Cursor/Claude 🎯
 
+**Instructions:**
+1. Copy the link below (click the copy button in the code block)
+2. Paste it into your browser address bar or Cursor's command palette
+3. Follow the prompts to complete installation
+
 **🚀 Install with .env file:**
 ```
 cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-mcp&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyJlbnZtY3AiLCItLWVudi1maWxlIiwiJHtFTlZfRklMRV9QQVRIX30iLCJ1dngiLCItLWZyb20iLCJnaXQraHR0cHM6Ly9naXRodWIuY29tL2FyYWE0Ny9qdXBpdGVyLW1jcCIsImp1cGl0ZXItbWNwIl0sImVudiI6eyJFTlZfRklMRV9QQVRIIjoiLmVudiJ9fQ==
@@ -32,12 +37,6 @@ cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-mcp&config=eyJjb21tY
 ```
 cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-mcp&config=eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyItLWZyb20iLCJnaXQraHR0cHM6Ly9naXRodWIuY29tL2FyYWE0Ny9qdXBpdGVyLW1jcCIsImp1cGl0ZXItbWNwIl0sImVudiI6eyJQUklWQVRFX0tFWSI6IlJFUExBQ0VfVEhJUyIsIlNPTEFOQV9SUENfVVJMIjoiaHR0cHM6Ly9hcGkubWFpbm5ldC1iZXRhLnNvbGFuYS5jb20iLCJTT0xBTkFfTkVUV09SSyI6Im1haW5uZXQtYmV0YSIsIlJFUVVFU1RfVElNRU9VVCI6IjMwIn19
 ```
-
-**Instructions:**
-1. Copy the link above (click the copy button in the code block)
-2. Paste it into your browser address bar or Cursor's command palette
-3. Follow the prompts to complete installation
-
 **Note:** These links only work in Cursor and other supported MCP clients.
 
 **Manual config for .env file approach:**
@@ -65,17 +64,17 @@ Replace `/path/to/your/.env` with your actual env file path (e.g., `/Users/yourn
 
 ### Option 3: Alternative Installation Method
 
-If you need the raw link for manual installation:
+
+**Instructions:**
+1. Copy the link below
+2. Paste it into your browser address bar or run it directly in Cursor
+3. You'll be prompted to replace `REPLACE_THIS` with your actual private key
+
 
 ```
 cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-mcp&config=eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyItLWZyb20iLCJnaXQraHR0cHM6Ly9naXRodWIuY29tL2FyYWE0Ny9qdXBpdGVyLW1jcCIsImp1cGl0ZXItbWNwIl0sImVudiI6eyJQUklWQVRFX0tFWSI6IlJFUExBQ0VfVEhJUyIsIlNPTEFOQV9SUENfVVJMIjoiaHR0cHM6Ly9hcGkubWFpbm5ldC1iZXRhLnNvbGFuYS5jb20iLCJTT0xBTkFfTkVUV09SSyI6Im1haW5uZXQtYmV0YSIsIlJFUVVFU1RfVElNRU9VVCI6IjMwIn19
 
 ```
-
-**Instructions:**
-1. Copy the link above
-2. Paste it into your browser address bar or run it directly in Cursor
-3. You'll be prompted to replace `REPLACE_THIS` with your actual private key
 
 **Pre-configured values:**
 
