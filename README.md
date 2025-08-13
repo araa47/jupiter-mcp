@@ -4,7 +4,21 @@ A Model Context Protocol server for Jupiter API, Solana's premier DEX aggregator
 
 ## 📦 Pre-built Desktop Extension (DXT)
 
-For easy installation in Claude Desktop:
+### Prerequisites
+Before installing the extension, ensure you have:
+
+1. **Node.js and npx** (for envmcp support)
+   - Download from: https://nodejs.org/
+   - Verify with: `npx --version`
+
+2. **uv/uvx** (Python package manager)
+   - Install from: https://docs.astral.sh/uv/getting-started/installation/
+   - macOS/Linux: `curl -LsSf https://astral.sh/uv/install.sh | sh`
+   - Windows: `powershell -c "irm https://astral.sh/uv/install.ps1 | iex"`
+   - Verify with: `uvx --version`
+
+
+Once you have prereqs for easy installation in Claude Desktop:
 
 **[Download jupiter-mcp-latest.dxt](https://github.com/araa47/jupiter-mcp/raw/main/jupiter-mcp-latest.dxt)** 📥
 
