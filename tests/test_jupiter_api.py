@@ -27,6 +27,11 @@ class TestJupiterAPI:
         return JupiterAPI()
 
     @pytest.fixture
+    def client_side_api(self) -> JupiterAPI:
+        """Create a test API client in client-side mode."""
+        return JupiterAPI(client_side_mode=True)
+
+    @pytest.fixture
     def mock_env_vars(self) -> Generator[None, None, None]:
         """Mock environment variables for testing."""
         with patch.dict(
@@ -1027,3 +1032,213 @@ class TestJupiterAPIPaid:
                     "💡 Note: Order might be below $5 minimum. Adjust amounts if needed."
                 )
             pytest.fail("Limit order creation failed")
+
+
+# CLIENT-SIDE MODE TESTS
+class TestJupiterAPIClientSide:
+    """Test suite for Jupiter API client in client-side mode."""
+
+    @pytest.fixture
+    def client_side_api(self) -> JupiterAPI:
+        """Create a test API client in client-side mode."""
+        return JupiterAPI(client_side_mode=True)
+
+    @pytest.fixture
+    def mock_env_vars(self) -> Generator[None, None, None]:
+        """Mock environment variables for testing."""
+        with patch.dict(
+            os.environ,
+            {
+                "SOLANA_RPC_URL": "https://api.devnet.solana.com",
+                "PRIVATE_KEY": "",  # No private key needed in client-side mode
+                "SOLANA_NETWORK": "devnet",
+                "REQUEST_TIMEOUT": "30",
+            },
+        ):
+            yield
+
+    def test_client_side_mode_enabled(self, client_side_api: JupiterAPI) -> None:
+        """Test that client-side mode is properly enabled."""
+        assert client_side_api.client_side_mode is True
+
+    def test_get_keypair_disabled_in_client_side_mode(
+        self, client_side_api: JupiterAPI, mock_env_vars: Any
+    ) -> None:
+        """Test that get_keypair raises error in client-side mode."""
+        with pytest.raises(
+            ValueError, match="Keypair access is disabled in client-side mode"
+        ):
+            client_side_api.get_keypair()
+
+    def test_get_wallet_info_client_side_mode(
+        self, client_side_api: JupiterAPI, mock_env_vars: Any
+    ) -> None:
+        """Test get_wallet_info in client-side mode."""
+        info = client_side_api.get_wallet_info()
+
+        assert info.get("client_side_mode") == "true"
+        assert "network" in info
+        assert "rpc_url" in info
+        assert "message" in info
+        assert "wallet_address" not in info
+
+    @pytest.mark.asyncio
+    async def test_build_raw_swap_tx_success(
+        self, client_side_api: JupiterAPI, mock_env_vars: Any
+    ) -> None:
+        """Test build_raw_swap_tx with valid parameters."""
+        with patch.object(client_side_api, "make_http_request") as mock_request:
+            mock_response = {
+                "transaction": "mock_unsigned_transaction",
+                "requestId": "mock_request_id",
+            }
+            mock_request.return_value = mock_response
+
+            result = await client_side_api.build_raw_swap_tx(
+                input_mint="So11111111111111111111111111111111111111112",
+                output_mint="EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+                amount="1000000",
+                user_address="TestUserAddressHere",
+            )
+
+            assert result["success"] is True
+            assert "data" in result
+            assert result["data"]["transaction"] == "mock_unsigned_transaction"
+            assert result["data"]["requestId"] == "mock_request_id"
+            assert result["data"]["user_address"] == "TestUserAddressHere"
+
+    @pytest.mark.asyncio
+    async def test_build_raw_swap_tx_missing_user_address(
+        self, client_side_api: JupiterAPI, mock_env_vars: Any
+    ) -> None:
+        """Test build_raw_swap_tx fails without user_address."""
+        result = await client_side_api.build_raw_swap_tx(
+            input_mint="So11111111111111111111111111111111111111112",
+            output_mint="EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+            amount="1000000",
+            user_address="",  # Empty address
+        )
+
+        assert result["success"] is False
+        assert "user_address cannot be empty" in result["error"]
+
+    @pytest.mark.asyncio
+    async def test_execute_swap_transaction_disabled_in_client_side_mode(
+        self, client_side_api: JupiterAPI, mock_env_vars: Any
+    ) -> None:
+        """Test that execute_swap_transaction is disabled in client-side mode."""
+        result = await client_side_api.execute_swap_transaction(
+            transaction="mock_transaction", request_id="mock_request_id"
+        )
+
+        assert result["success"] is False
+        assert (
+            "execute_swap_transaction is disabled in client-side mode"
+            in result["error"]
+        )
+
+    @pytest.mark.asyncio
+    async def test_execute_limit_order_disabled_in_client_side_mode(
+        self, client_side_api: JupiterAPI, mock_env_vars: Any
+    ) -> None:
+        """Test that execute_limit_order is disabled in client-side mode."""
+        result = await client_side_api.execute_limit_order(
+            transaction="mock_transaction", request_id="mock_request_id"
+        )
+
+        assert result["success"] is False
+        assert "execute_limit_order is disabled in client-side mode" in result["error"]
+
+    @pytest.mark.asyncio
+    async def test_submit_signed_transaction_success(
+        self, client_side_api: JupiterAPI, mock_env_vars: Any
+    ) -> None:
+        """Test submit_signed_transaction with valid parameters."""
+        with patch.object(client_side_api, "make_http_request") as mock_request:
+            mock_response = {"signature": "mock_signature", "status": "Success"}
+            mock_request.return_value = mock_response
+
+            result = await client_side_api.submit_signed_transaction(
+                signed_transaction="mock_signed_transaction",
+                request_id="mock_request_id",
+            )
+
+            assert result["success"] is True
+            assert "data" in result
+            assert result["data"]["signature"] == "mock_signature"
+
+    @pytest.mark.asyncio
+    async def test_get_balances_requires_wallet_address_in_client_side_mode(
+        self, client_side_api: JupiterAPI, mock_env_vars: Any
+    ) -> None:
+        """Test that get_balances requires wallet_address in client-side mode."""
+        result = await client_side_api.get_balances()
+
+        assert result["success"] is False
+        assert (
+            "wallet_address parameter is required in client-side mode"
+            in result["error"]
+        )
+
+    @pytest.mark.asyncio
+    async def test_get_balances_with_wallet_address_in_client_side_mode(
+        self, client_side_api: JupiterAPI, mock_env_vars: Any
+    ) -> None:
+        """Test get_balances with wallet_address in client-side mode."""
+        with patch.object(client_side_api, "make_http_request") as mock_request:
+            mock_response = [
+                {
+                    "mint": "So11111111111111111111111111111111111111112",
+                    "amount": "1000000",
+                }
+            ]
+            mock_request.return_value = mock_response
+
+            result = await client_side_api.get_balances(
+                wallet_address="TestWalletAddress"
+            )
+
+            assert result["success"] is True
+            assert result["wallet_address"] == "TestWalletAddress"
+            assert "data" in result
+
+    @pytest.mark.asyncio
+    async def test_create_limit_order_requires_user_address_in_client_side_mode(
+        self, client_side_api: JupiterAPI, mock_env_vars: Any
+    ) -> None:
+        """Test that create_limit_order requires user_address in client-side mode."""
+        result = await client_side_api.create_limit_order(
+            input_mint="So11111111111111111111111111111111111111112",
+            output_mint="EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+            making_amount="1000000",
+            taking_amount="20000000",
+        )
+
+        assert result["success"] is False
+        assert (
+            "user_address parameter is required in client-side mode" in result["error"]
+        )
+
+    @pytest.mark.asyncio
+    async def test_create_limit_order_with_user_address_in_client_side_mode(
+        self, client_side_api: JupiterAPI, mock_env_vars: Any
+    ) -> None:
+        """Test create_limit_order with user_address in client-side mode."""
+        with patch.object(client_side_api, "make_http_request") as mock_request:
+            mock_response = {
+                "order": "mock_order_account",
+                "transaction": "mock_unsigned_transaction",
+                "requestId": "mock_request_id",
+            }
+            mock_request.return_value = mock_response
+
+            result = await client_side_api.create_limit_order(
+                input_mint="So11111111111111111111111111111111111111112",
+                output_mint="EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+                making_amount="1000000",
+                taking_amount="20000000",
+                user_address="TestUserAddress",
+            )
+
+            assert result["success"] is True
+            assert "data" in result

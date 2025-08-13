@@ -27,14 +27,21 @@ DEV_REFERRER_WALLET = "8cK8hCyRQCp52nVuPLnLL71afkRvRcFibSwHMjGFT8bm"
 class JupiterAPI:
     """Jupiter API client for Solana blockchain interactions."""
 
-    def __init__(self):
-        """Initialize the Jupiter API client."""
+    def __init__(self, client_side_mode: bool = False):
+        """Initialize the Jupiter API client.
+
+        Args:
+            client_side_mode: If True, disable server-side transaction signing and execution.
+                             Instead, use build_raw_* methods to prepare unsigned transactions
+                             for client-side signing and submit_signed_transaction to execute.
+        """
         self.rpc_url = os.getenv("SOLANA_RPC_URL", "https://api.devnet.solana.com")
         self.private_key = os.getenv("PRIVATE_KEY")
         self.network = os.getenv("SOLANA_NETWORK", "devnet")
         self.request_timeout = int(os.getenv("REQUEST_TIMEOUT", "30"))
         self.base_url = "https://lite-api.jup.ag/ultra/v1"
         self.trigger_base_url = "https://lite-api.jup.ag/trigger/v1"
+        self.client_side_mode = client_side_mode
 
         # Initialize clients
         self._solana_client: Optional[AsyncClient] = None
@@ -48,6 +55,11 @@ class JupiterAPI:
 
     def get_keypair(self) -> Keypair:
         """Get or create the keypair from the private key."""
+        if self.client_side_mode:
+            raise ValueError(
+                "Keypair access is disabled in client-side mode. Use user_address parameter instead."
+            )
+
         if self._keypair is None:
             if not self.private_key:
                 raise ValueError("PRIVATE_KEY environment variable is required")
@@ -170,6 +182,96 @@ class JupiterAPI:
         except Exception as e:
             return {"success": False, "error": f"Failed to get swap quote: {str(e)}"}
 
+    async def build_raw_swap_tx(
+        self,
+        input_mint: str,
+        output_mint: str,
+        amount: str,
+        user_address: str,
+    ) -> Dict[str, Any]:
+        """
+        Build a raw unsigned swap transaction for client-side signing.
+
+        This method is designed for client-side key handling where the private key
+        never leaves the client. Use this when client_side_mode=True.
+
+        Args:
+            input_mint: Input token mint address
+            output_mint: Output token mint address
+            amount: Amount of input token in smallest unit
+            user_address: User's wallet address (replaces server-side keypair)
+
+        Returns:
+            Dictionary containing:
+            - success: Boolean indicating if the request was successful
+            - data: Contains 'transaction' (unsigned), 'requestId', and 'user_address'
+            - error: Error message if request failed
+
+        Example:
+            >>> # Client-side mode API
+            >>> api = JupiterAPI(client_side_mode=True)
+            >>> result = await api.build_raw_swap_tx(
+            ...     input_mint="So11111111111111111111111111111111111111112",
+            ...     output_mint="EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+            ...     amount="1000000",
+            ...     user_address="YourWalletAddressHere"
+            ... )
+            >>> if result["success"]:
+            ...     # Sign the transaction client-side
+            ...     signed_tx = your_client_signing_function(result["data"]["transaction"])
+            ...     # Submit the signed transaction
+            ...     submit_result = await api.submit_signed_transaction(
+            ...         signed_transaction=signed_tx,
+            ...         request_id=result["data"]["requestId"]
+            ...     )
+        """
+        try:
+            # Validate inputs
+            if not input_mint or not input_mint.strip():
+                return {"success": False, "error": "input_mint cannot be empty"}
+            if not output_mint or not output_mint.strip():
+                return {"success": False, "error": "output_mint cannot be empty"}
+            if not amount or not amount.strip():
+                return {"success": False, "error": "amount cannot be empty"}
+            if not user_address or not user_address.strip():
+                return {"success": False, "error": "user_address cannot be empty"}
+
+            # Validate amount is numeric
+            try:
+                amount_num = int(amount)
+                if amount_num <= 0:
+                    return {
+                        "success": False,
+                        "error": "amount must be a positive number",
+                    }
+            except ValueError:
+                return {"success": False, "error": "amount must be a valid number"}
+
+            # Build query parameters with referral
+            params = {
+                "inputMint": input_mint,
+                "outputMint": output_mint,
+                "amount": amount,
+                "taker": user_address,
+                "referralAccount": DEV_REFERRER_WALLET,
+                "referralFee": "255",  # 255 basis points (2.55%) - maximum allowed
+            }
+
+            # Make the API request
+            url = f"{self.base_url}/order"
+            response = await self.make_http_request("GET", url, params=params)
+
+            # Add user_address to response for reference
+            response["user_address"] = user_address
+
+            return {"success": True, "data": response}
+
+        except Exception as e:
+            return {
+                "success": False,
+                "error": f"Failed to build raw swap transaction: {str(e)}",
+            }
+
     async def execute_swap_transaction(
         self, transaction: str, request_id: str
     ) -> Dict[str, Any]:
@@ -208,6 +310,13 @@ class JupiterAPI:
             ...     if result["success"]:
             ...         print(f"Trade executed! Signature: {result['data']['signature']}")
         """
+        # Check if client-side mode is enabled
+        if self.client_side_mode:
+            return {
+                "success": False,
+                "error": "execute_swap_transaction is disabled in client-side mode. Use build_raw_swap_tx and submit_signed_transaction instead.",
+            }
+
         try:
             # Validate inputs
             if not transaction or not transaction.strip():
@@ -232,6 +341,63 @@ class JupiterAPI:
 
             # Step 2: Execute the signed transaction
             print("⚡ Executing transaction on Solana blockchain...")
+            payload = {"signedTransaction": signed_transaction, "requestId": request_id}
+
+            # Make the API request
+            url = f"{self.base_url}/execute"
+            response = await self.make_http_request("POST", url, json_data=payload)
+
+            print(f"🎉 Transaction executed! Response: {response}")
+            return {"success": True, "data": response}
+
+        except Exception as e:
+            print(f"❌ Transaction execution failed: {str(e)}")
+            return {"success": False, "error": str(e)}
+
+    async def submit_signed_transaction(
+        self, signed_transaction: str, request_id: str
+    ) -> Dict[str, Any]:
+        """
+        🚨 WARNING: THIS WILL EXECUTE A REAL TRADE AND SPEND ACTUAL SOL! 🚨
+
+        Submit a pre-signed transaction to Jupiter Ultra API for execution.
+
+        This method is designed for client-side key handling where the transaction
+        was signed externally and just needs to be submitted to the blockchain.
+
+        Args:
+            signed_transaction: The base64 encoded SIGNED transaction
+            request_id: The request ID from the swap quote response
+
+        Returns:
+            Dictionary containing:
+            - success: Boolean indicating if the execution was successful
+            - data: Contains 'signature' and transaction details if successful
+            - error: Error message if execution failed
+
+        Example:
+            >>> # After building raw transaction and signing client-side
+            >>> result = await api.submit_signed_transaction(
+            ...     signed_transaction="base64_signed_transaction",
+            ...     request_id="request_id_from_quote"
+            ... )
+            >>> if result["success"]:
+            ...     print(f"Trade executed! Signature: {result['data']['signature']}")
+        """
+        try:
+            # Validate inputs
+            if not signed_transaction or not signed_transaction.strip():
+                raise ValueError("Signed transaction cannot be empty")
+            if not request_id or not request_id.strip():
+                raise ValueError("Request ID cannot be empty")
+
+            print(
+                "🚨 WARNING: About to execute a REAL trade with pre-signed transaction!"
+            )
+            print("🚨 This will spend actual SOL/tokens on the blockchain!")
+
+            # Execute the signed transaction
+            print("⚡ Executing signed transaction on Solana blockchain...")
             payload = {"signedTransaction": signed_transaction, "requestId": request_id}
 
             # Make the API request
@@ -278,6 +444,11 @@ class JupiterAPI:
         try:
             # Use configured wallet if address not provided
             if wallet_address is None:
+                if self.client_side_mode:
+                    return {
+                        "success": False,
+                        "error": "wallet_address parameter is required in client-side mode",
+                    }
                 keypair = self.get_keypair()
                 wallet_address = str(keypair.pubkey())
 
@@ -427,6 +598,13 @@ class JupiterAPI:
     def get_wallet_info(self) -> Dict[str, str]:
         """Get information about the configured wallet."""
         try:
+            if self.client_side_mode:
+                return {
+                    "client_side_mode": "true",
+                    "network": self.network,
+                    "rpc_url": self.rpc_url,
+                    "message": "Client-side mode enabled - wallet address managed externally",
+                }
             keypair = self.get_keypair()
             return {
                 "wallet_address": str(keypair.pubkey()),
@@ -508,6 +686,7 @@ class JupiterAPI:
         taking_amount: str,
         slippage_bps: Optional[int] = 0,
         expired_at: Optional[int] = None,
+        user_address: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Create a limit order that executes when target price is reached.
@@ -537,6 +716,7 @@ class JupiterAPI:
             taking_amount: Amount of output token to receive in smallest unit (sets the price)
             slippage_bps: Slippage in basis points (0 = exact price, >0 = accept worse price)
             expired_at: Unix timestamp when order expires (optional)
+            user_address: User's wallet address (required in client-side mode, optional otherwise)
 
         Returns:
             Dictionary containing:
@@ -594,8 +774,16 @@ class JupiterAPI:
                 return {"success": False, "error": "amounts must be valid numbers"}
 
             # Get wallet as maker
-            keypair = self.get_keypair()
-            maker = str(keypair.pubkey())
+            if user_address:
+                maker = user_address
+            elif self.client_side_mode:
+                return {
+                    "success": False,
+                    "error": "user_address parameter is required in client-side mode",
+                }
+            else:
+                keypair = self.get_keypair()
+                maker = str(keypair.pubkey())
 
             # Build params object
             params: Dict[str, str] = {
@@ -677,6 +865,13 @@ class JupiterAPI:
             ...     if result["success"]:
             ...         print(f"Limit order created! Signature: {result['data']['signature']}")
         """
+        # Check if client-side mode is enabled
+        if self.client_side_mode:
+            return {
+                "success": False,
+                "error": "execute_limit_order is disabled in client-side mode. Use create_limit_order and submit_signed_transaction instead.",
+            }
+
         try:
             # Validate inputs
             if not transaction or not transaction.strip():
@@ -716,7 +911,9 @@ class JupiterAPI:
             print(f"❌ Limit order creation failed: {str(e)}")
             return {"success": False, "error": str(e)}
 
-    async def cancel_limit_order(self, order: str) -> Dict[str, Any]:
+    async def cancel_limit_order(
+        self, order: str, user_address: Optional[str] = None
+    ) -> Dict[str, Any]:
         """
         Cancel a single active limit order.
 
@@ -725,6 +922,7 @@ class JupiterAPI:
 
         Args:
             order: Order account address to cancel
+            user_address: User's wallet address (required in client-side mode, optional otherwise)
 
         Returns:
             Dictionary containing:
@@ -754,8 +952,16 @@ class JupiterAPI:
                 return {"success": False, "error": "order address cannot be empty"}
 
             # Get wallet as maker
-            keypair = self.get_keypair()
-            maker = str(keypair.pubkey())
+            if user_address:
+                maker = user_address
+            elif self.client_side_mode:
+                return {
+                    "success": False,
+                    "error": "user_address parameter is required in client-side mode",
+                }
+            else:
+                keypair = self.get_keypair()
+                maker = str(keypair.pubkey())
 
             # Build request payload
             payload = {
@@ -774,7 +980,7 @@ class JupiterAPI:
             return {"success": False, "error": f"Failed to cancel order: {str(e)}"}
 
     async def cancel_limit_orders(
-        self, orders: Optional[List[str]] = None
+        self, orders: Optional[List[str]] = None, user_address: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Cancel multiple limit orders (batched in groups of 5).
@@ -784,6 +990,7 @@ class JupiterAPI:
 
         Args:
             orders: Array of order account addresses. If None/empty, cancels ALL orders
+            user_address: User's wallet address (required in client-side mode, optional otherwise)
 
         Returns:
             Dictionary containing:
@@ -814,8 +1021,16 @@ class JupiterAPI:
         """
         try:
             # Get wallet as maker
-            keypair = self.get_keypair()
-            maker = str(keypair.pubkey())
+            if user_address:
+                maker = user_address
+            elif self.client_side_mode:
+                return {
+                    "success": False,
+                    "error": "user_address parameter is required in client-side mode",
+                }
+            else:
+                keypair = self.get_keypair()
+                maker = str(keypair.pubkey())
 
             # Build request payload
             payload: Dict[str, Any] = {
@@ -891,6 +1106,11 @@ class JupiterAPI:
 
             # Use configured wallet if address not provided
             if wallet_address is None:
+                if self.client_side_mode:
+                    return {
+                        "success": False,
+                        "error": "wallet_address parameter is required in client-side mode",
+                    }
                 keypair = self.get_keypair()
                 wallet_address = str(keypair.pubkey())
 
