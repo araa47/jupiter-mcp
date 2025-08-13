@@ -27,6 +27,7 @@ Download the DXT file and double-click to install. See `dxt/README.md` for detai
 1. Copy the link below (click the copy button in the code block)
 2. Paste it into your browser address bar or Cursor's command palette
 3. Follow the prompts to complete installation
+4. You'll be prompted to replace `REPLACE_THIS` with your actual solana private key!
 
 
 **🚀 Install with Direct Input:**
@@ -57,20 +58,6 @@ cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-mcp&config=eyJjb21tY
 ```
 
 Replace `/path/to/your/.env` with your actual env file path (e.g., `/Users/yourname/.env`)
-
-### Option 3: Alternative Installation Method
-
-
-**Instructions:**
-1. Copy the link below
-2. Paste it into your browser address bar or run it directly in Cursor
-3. You'll be prompted to replace `REPLACE_THIS` with your actual private key
-
-
-```
-cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-mcp&config=eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyItLWZyb20iLCJnaXQraHR0cHM6Ly9naXRodWIuY29tL2FyYWE0Ny9qdXBpdGVyLW1jcCIsImp1cGl0ZXItbWNwIl0sImVudiI6eyJQUklWQVRFX0tFWSI6IlJFUExBQ0VfVEhJUyIsIlNPTEFOQV9SUENfVVJMIjoiaHR0cHM6Ly9hcGkubWFpbm5ldC1iZXRhLnNvbGFuYS5jb20iLCJTT0xBTkFfTkVUV09SSyI6Im1haW5uZXQtYmV0YSIsIlJFUVVFU1RfVElNRU9VVCI6IjMwIn19
-
-```
 
 **Pre-configured values:**
 
