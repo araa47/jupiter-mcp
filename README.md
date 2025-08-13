@@ -23,11 +23,22 @@ Download the DXT file and double-click to install. See `dxt/README.md` for detai
 
 ### Option 2: Quick Install with Cursor/Claude 🎯
 
-**[🚀 Install with .env file →](cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-mcp&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyJlbnZtY3AiLCItLWVudi1maWxlIiwiJHtFTlZfRklMRV9QQVRIX30iLCJ1dngiLCItLWZyb20iLCJnaXQraHR0cHM6Ly9naXRodWIuY29tL2FyYWE0Ny9qdXBpdGVyLW1jcCIsImp1cGl0ZXItbWNwIl0sImVudiI6eyJFTlZfRklMRV9QQVRIIjoiLmVudiJ9fQ==)**
+**🚀 Install with .env file:**
+```
+cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-mcp&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyJlbnZtY3AiLCItLWVudi1maWxlIiwiJHtFTlZfRklMRV9QQVRIX30iLCJ1dngiLCItLWZyb20iLCJnaXQraHR0cHM6Ly9naXRodWIuY29tL2FyYWE0Ny9qdXBpdGVyLW1jcCIsImp1cGl0ZXItbWNwIl0sImVudiI6eyJFTlZfRklMRV9QQVRIIjoiLmVudiJ9fQ==
+```
 
-**[🚀 Install with Direct Input →](cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-mcp&config=eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyItLWZyb20iLCJnaXQraHR0cHM6Ly9naXRodWIuY29tL2FyYWE0Ny9qdXBpdGVyLW1jcCIsImp1cGl0ZXItbWNwIl0sImVudiI6eyJQUklWQVRFX0tFWSI6IlJFUExBQ0VfVEhJUyIsIlNPTEFOQV9SUENfVVJMIjoiaHR0cHM6Ly9hcGkubWFpbm5ldC1iZXRhLnNvbGFuYS5jb20iLCJTT0xBTkFfTkVUV09SSyI6Im1haW5uZXQtYmV0YSIsIlJFUVVFU1RfVElNRU9VVCI6IjMwIn19)**
+**🚀 Install with Direct Input:**
+```
+cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-mcp&config=eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyItLWZyb20iLCJnaXQraHR0cHM6Ly9naXRodWIuY29tL2FyYWE0Ny9qdXBpdGVyLW1jcCIsImp1cGl0ZXItbWNwIl0sImVudiI6eyJQUklWQVRFX0tFWSI6IlJFUExBQ0VfVEhJUyIsIlNPTEFOQV9SUENfVVJMIjoiaHR0cHM6Ly9hcGkubWFpbm5ldC1iZXRhLnNvbGFuYS5jb20iLCJTT0xBTkFfTkVUV09SSyI6Im1haW5uZXQtYmV0YSIsIlJFUVVFU1RfVElNRU9VVCI6IjMwIn19
+```
 
-**Note:** These links only work in supported MCP clients.
+**Instructions:**
+1. Copy the link above (click the copy button in the code block)
+2. Paste it into your browser address bar or Cursor's command palette
+3. Follow the prompts to complete installation
+
+**Note:** These links only work in Cursor and other supported MCP clients.
 
 **Manual config for .env file approach:**
 
@@ -52,20 +63,19 @@ Download the DXT file and double-click to install. See `dxt/README.md` for detai
 
 Replace `/path/to/your/.env` with your actual env file path (e.g., `/Users/yourname/.env`)
 
-### Option 3: With Cursor Input Prompts (Less Secure)
+### Option 3: Alternative Installation Method
 
-If you prefer to configure directly through Cursor prompts:
-
-**[🚀 Install with Direct Input →](cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-mcp&config=eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyItLWZyb20iLCJnaXQraHR0cHM6Ly9naXRodWIuY29tL2FyYWE0Ny9qdXBpdGVyLW1jcCIsImp1cGl0ZXItbWNwIl0sImVudiI6eyJQUklWQVRFX0tFWSI6IlJFUExBQ0VfVEhJUyIsIlNPTEFOQV9SUENfVVJMIjoiaHR0cHM6Ly9hcGkubWFpbm5ldC1iZXRhLnNvbGFuYS5jb20iLCJTT0xBTkFfTkVUV09SSyI6Im1haW5uZXQtYmV0YSIsIlJFUVVFU1RfVElNRU9VVCI6IjMwIn19)**
-
-**Note:** This link only works in the Cursor app. If viewing on web, copy the link below:
+If you need the raw link for manual installation:
 
 ```
 cursor://anysphere.cursor-deeplink/mcp/install?name=jupiter-mcp&config=eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyItLWZyb20iLCJnaXQraHR0cHM6Ly9naXRodWIuY29tL2FyYWE0Ny9qdXBpdGVyLW1jcCIsImp1cGl0ZXItbWNwIl0sImVudiI6eyJQUklWQVRFX0tFWSI6IlJFUExBQ0VfVEhJUyIsIlNPTEFOQV9SUENfVVJMIjoiaHR0cHM6Ly9hcGkubWFpbm5ldC1iZXRhLnNvbGFuYS5jb20iLCJTT0xBTkFfTkVUV09SSyI6Im1haW5uZXQtYmV0YSIsIlJFUVVFU1RfVElNRU9VVCI6IjMwIn19
 
 ```
 
-You'll be prompted to replace `REPLACE_THIS` with your actual private key.
+**Instructions:**
+1. Copy the link above
+2. Paste it into your browser address bar or run it directly in Cursor
+3. You'll be prompted to replace `REPLACE_THIS` with your actual private key
 
 **Pre-configured values:**
 
