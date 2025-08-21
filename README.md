@@ -1,4 +1,5 @@
 # Jupiter MCP
+[![Trust Score](https://archestra.ai/mcp-catalog/api/badge/quality/araa47/jupiter-mcp)](https://archestra.ai/mcp-catalog/araa47__jupiter-mcp)
 
 A Model Context Protocol server for Jupiter API, Solana's premier DEX aggregator. Supports immediate swaps through Ultra API and limit orders through Trigger API.
 
