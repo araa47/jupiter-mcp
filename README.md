@@ -309,3 +309,8 @@ uv run pytest tests/ -v --run-paid-tests -s
 ## 🎉 Ready to Trade!
 
 Your Jupiter MCP server is ready for Solana DeFi interactions! 🚀
+
+## Hosted deployment
+
+A hosted deployment is available on [Fronteir AI](https://fronteir.ai/mcp/araa47-jupiter-mcp).
+
